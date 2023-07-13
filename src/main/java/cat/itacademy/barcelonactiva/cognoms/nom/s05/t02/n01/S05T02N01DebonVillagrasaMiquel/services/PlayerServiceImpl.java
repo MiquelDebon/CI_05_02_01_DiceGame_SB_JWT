@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PlayerServiceImpl {
@@ -17,11 +18,21 @@ public class PlayerServiceImpl {
         return playerRepository.findAll();
     }
 
+    //TODO ACCEPT ANONIMOUS NAME
     public Player savePlayer(Player newPlayer){
-        playerRepository.save(newPlayer);
-        return newPlayer;
+        boolean repitedName = false;
+        repitedName = playerRepository.findAll()
+                        .stream().map(Player::getName)
+                        .anyMatch((n)-> n.equalsIgnoreCase(newPlayer.getName()));
+        if(!repitedName){
+            playerRepository.save(newPlayer);
+            return newPlayer;
+        }else{
+            throw new RuntimeException();
+        }
     }
 
+    //TODO control no duplicate name
     public Player updatePlayer(Player updatedPlayer){
         playerRepository.save(updatedPlayer);
         return updatedPlayer;
@@ -33,10 +44,12 @@ public class PlayerServiceImpl {
         return deletedPlayer;
     }
 
-    public Player getPlayer(int id){
+    public Player findById(int id){
         return playerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException());
     }
+
+
 
 
 }

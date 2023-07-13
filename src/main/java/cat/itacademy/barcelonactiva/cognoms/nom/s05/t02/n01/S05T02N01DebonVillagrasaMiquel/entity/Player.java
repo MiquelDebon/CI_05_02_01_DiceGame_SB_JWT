@@ -1,4 +1,4 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,8 +13,9 @@ public class Player {
     @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true)
-    private int id;
+    private Integer id;
 
     //Unique except "Anonymous" using Backend not SQL
+    @Column(nullable = false)
     private String name;
 }

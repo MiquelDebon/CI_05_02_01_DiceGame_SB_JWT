@@ -1,6 +1,8 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IGameRepository;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IplayerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,15 +10,34 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 @Slf4j
 @Service
-public class PlayerServiceImpl {
+public class PlayerGamerService {
+    @Autowired
+    private IGameRepository gameRepository;
     @Autowired
     private IplayerRepository playerRepository;
+
+    @Autowired
+    private PlayerServiceImpl playerService;
+    @Autowired
+    private GameServiceImpl gameService;
+
+    public PlayerGameDTO playerDTOfromPlayer(int id){
+        Player player = playerRepository.findById(id).get();
+        return new PlayerGameDTO(player.getId(), player.getName(), gameService.averageMarkPLayer(id));
+    }
+
+
+    /**
+     *
+     */
 
     public List<Player> getAllPlayers(){
         return playerRepository.findAll();
     }
+
 
     public Player savePlayer(Player newPlayer){
         if(newPlayer.getName().equals("ANONYMOYS")){
@@ -25,8 +46,8 @@ public class PlayerServiceImpl {
         }else{
             boolean repitedName = false;
             repitedName = playerRepository.findAll()
-                            .stream().map(Player::getName)
-                            .anyMatch((n)-> n.equalsIgnoreCase(newPlayer.getName()));
+                    .stream().map(Player::getName)
+                    .anyMatch((n)-> n.equalsIgnoreCase(newPlayer.getName()));
             if(!repitedName){
                 playerRepository.save(newPlayer);
                 return newPlayer;

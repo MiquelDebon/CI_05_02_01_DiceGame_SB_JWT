@@ -1,5 +1,6 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Game;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IGameRepository;
@@ -42,5 +43,12 @@ public class GameServiceImpl  {
     public Optional<Game> findById(int id){
         return gameRepository.findById(id);
     }
+
+    public List<Game> deleteByPlayerId(int id){
+        List<Game> gameList = findGamesByPlayerId(id);
+        deleteByPlayerId(id);
+        return gameList;
+    }
+
 
 }

@@ -6,6 +6,8 @@ import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillag
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IGameRepository;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IplayerRepository;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +21,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+//@AllArgsConstructor
 public class PlayerGamerService {
     @Autowired
     private IGameRepository gameRepository;
     @Autowired
     private IplayerRepository playerRepository;
     //TODO I wanna use Mapper I will add a nickName
-    private final ModelMapper mapper = new ModelMapper();
+//    private final ModelMapper mapper = new ModelMapper();
 
 
     /**
@@ -41,7 +44,7 @@ public class PlayerGamerService {
         return new PlayerGameDTO(player.getId(), player.getName(), this.succesRate(player.getId()));
     }
     public GameDTO gameDTOfromGame(Game game){
-        return new GameDTO(game.getId(), game.getMark());
+        return new GameDTO(game.getMark());
     }
 
     /**

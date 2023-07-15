@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -18,4 +21,15 @@ public class Player {
     //Unique except "Anonymous" using Backend not SQL
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
+    private String registerDate;
+
+
+    public Player(Integer id, String name){
+        this.id = id;
+        this.name = name;
+        registerDate = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+                .format(new java.util.Date());
+    }
 }

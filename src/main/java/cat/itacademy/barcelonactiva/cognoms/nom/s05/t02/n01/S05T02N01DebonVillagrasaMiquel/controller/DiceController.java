@@ -2,14 +2,17 @@ package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVilla
 
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.GameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Game;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services.PlayerGamerService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("players")
 public class DiceController {
@@ -30,11 +33,19 @@ public class DiceController {
      *  🔗http://localhost:9005/players
      */
     @PostMapping("/")
-    public PlayerGameDTO savePlayer(@RequestParam(required = false) String name){
-        if(name == null){
-            return PGService.savePlayer(new Player(null, "ANONYMOYS"));
+    public ResponseEntity<?> savePlayer(@RequestParam(required = false) String name){
+        PlayerGameDTO returnPlayer;
+        log.info("Controller - Save method");
+        try{
+            if(name == null){
+                returnPlayer = PGService.savePlayer(new Player(null, "ANONYMOYS"));
+            }else{
+                returnPlayer = PGService.savePlayer(new Player(null, name));
+            }
+            return new ResponseEntity<>(returnPlayer, HttpStatus.CREATED);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("An error occurred", HttpStatus.BAD_REQUEST);
         }
-        return PGService.savePlayer(new Player(null, name));
     }
 
     /**
@@ -42,10 +53,17 @@ public class DiceController {
      *   🔗http://localhost:9005/players
      */
     @PutMapping()
-    public PlayerGameDTO updatePlayer(@RequestBody Player newPlayer){
-        PlayerGameDTO updatedDTO = PGService.updatePlayer(newPlayer);
-        //TODO if null -> throw 400
-        return updatedDTO;
+    public ResponseEntity<?> updatePlayer(@RequestBody Player newPlayer){
+        try{
+            PlayerGameDTO updatedDTO = PGService.updatePlayer(newPlayer);
+            if(updatedDTO == null){
+                return new ResponseEntity<>("Invalid player", HttpStatus.BAD_REQUEST);
+            }else{
+                return new ResponseEntity<>(updatedDTO, HttpStatus.OK);
+            }
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("Invalid player", HttpStatus.BAD_REQUEST);
+        }
     }
 
     /**
@@ -53,10 +71,15 @@ public class DiceController {
      *  @see <a href="http://localhost:9005/players/2/games"> 🔗 http://localhost:9005/players/2/games </a>
      */
     @PostMapping("/{id}/games")
-    public GameDTO playGame(@PathVariable int id){
+    public ResponseEntity<?> playGame(@PathVariable int id){
         int gameResult = LogicGame.PLAY();
-        Player player = PGService.findPlayerById(id);
-        return PGService.saveGame(player, gameResult);
+        try{
+            Player player = PGService.findPlayerById(id);
+            GameDTO gameDTO = PGService.saveGame(player, gameResult);
+            return new ResponseEntity<>(gameDTO, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 
@@ -65,8 +88,13 @@ public class DiceController {
      *  @see <a href="http://localhost:9005/players"> 🔗http://localhost:9005/players</a>
      */
     @GetMapping()
-    public List<PlayerGameDTO> getAllPlayers(){
-         return PGService.getAllPlayersDTO();
+    public ResponseEntity<?> getAllPlayers(){
+        try{
+            List<PlayerGameDTO> returnList = PGService.getAllPlayersDTO();
+            return new ResponseEntity<>(returnList, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -74,8 +102,13 @@ public class DiceController {
      *  @see <a href="http://localhost:9005/players/2"> 🔗http://localhost:9005/players/2</a>
      */
     @GetMapping("/{id}")
-    public List<GameDTO> getGamePlayers(@PathVariable int id){
-        return PGService.findGamesByPlayerId(id);
+    public ResponseEntity<?> getGamePlayers(@PathVariable int id){
+        try{
+            List<GameDTO> returnList =  PGService.findGamesByPlayerId(id);
+            return new ResponseEntity<>(returnList, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
@@ -83,10 +116,14 @@ public class DiceController {
      *  🔗http://localhost:9005/players/2/games
      */
     @DeleteMapping("/{id}/games")
-    public PlayerGameDTO deletePlayerGames(@PathVariable int id){
-        PGService.deleteGamesByPlayerId(id);
-        PlayerGameDTO player = PGService.findPlayerDTOById(id);
-        return player;
+    public ResponseEntity<?> deletePlayerGames(@PathVariable int id){
+        try{
+            PGService.deleteGamesByPlayerId(id);
+            PlayerGameDTO player = PGService.findPlayerDTOById(id);
+            return new ResponseEntity<>(player, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
@@ -94,8 +131,13 @@ public class DiceController {
      *  @see <a href="http://localhost:9005/players/ranking"> 🔗http://localhost:9005/players/ranking</a>
      */
     @GetMapping("/ranking")
-    public List<PlayerGameDTO> getRankingPlayers(){
-        return PGService.getAllPlayersDTORanking();
+    public ResponseEntity<?> getRankingPlayers(){
+        try{
+            List<PlayerGameDTO> returnList = PGService.getAllPlayersDTORanking();
+            return new ResponseEntity<>(returnList, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -104,8 +146,13 @@ public class DiceController {
      *  @see <a href="http://localhost:9005/players/ranking/loser"> 🔗http://localhost:9005/players/ranking/loser</a>
      */
     @GetMapping("/ranking/loser")
-    public PlayerGameDTO getWorstPlayer(){
-        return PGService.getWorstPlayer();
+    public ResponseEntity<?> getWorstPlayer(){
+        try{
+            PlayerGameDTO player = PGService.getWorstPlayer();
+            return new ResponseEntity<>(player, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -113,9 +160,15 @@ public class DiceController {
      *  🔵 GET Retorna el  jugador amb pitjor percentatge d’èxit.
      *  @see <a href="http://localhost:9005/players/ranking/winnerr"> 🔗http://localhost:9005/players/ranking/winner</a>
      */
-    @GetMapping("/ranking/loser")
-    public PlayerGameDTO getBestPlayer(){
-        return PGService.getBestPlayer();
+    @GetMapping("/ranking/winner")
+    public ResponseEntity<?> getBestPlayer(){
+        try{
+            PlayerGameDTO player =  PGService.getBestPlayer();
+            return new ResponseEntity<>(player, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 

@@ -8,12 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GameDTO {
-    private int id;
     private int mark;
     private String message;
 
-    public GameDTO(int id, int mark) {
-        this.id = id;
+    public GameDTO( int mark) {
         this.mark = mark;
         message = mark > 7 ? "WIN" : "LOSE";
     }

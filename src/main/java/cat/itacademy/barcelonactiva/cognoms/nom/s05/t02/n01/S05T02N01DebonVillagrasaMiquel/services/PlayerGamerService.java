@@ -1,16 +1,19 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.GameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Game;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IGameRepository;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IplayerRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,17 +24,15 @@ public class PlayerGamerService {
     private IGameRepository gameRepository;
     @Autowired
     private IplayerRepository playerRepository;
+    //TODO I wanna use Mapper I will add a nickName
+    private final ModelMapper mapper = new ModelMapper();
 
 
     /**
-     * TODO MAPPER!!!
+     *
+     * 🔁 ----------  MAPPERS -----------
      *
      */
-
-    public PlayerGameDTO playerDTOfromPlayer(int id){
-        Player player = playerRepository.findById(id).get();
-        return new PlayerGameDTO(player.getId(), player.getName(), this.averageMarkPLayer(id));
-    }
 
     public PlayerGameDTO playerDTOfromPlayer(Player player){
         return new PlayerGameDTO(player.getId(), player.getName(), this.averageMarkPLayer(player.getId()));
@@ -39,8 +40,13 @@ public class PlayerGamerService {
     public PlayerGameDTO rankingPlayerDTOfromPlayer(Player player){
         return new PlayerGameDTO(player.getId(), player.getName(), this.succesRate(player.getId()));
     }
+    public GameDTO gameDTOfromGame(Game game){
+        return new GameDTO(game.getId(), game.getMark());
+    }
 
     /**
+     *
+     *  ℹ️    ------- METHODS ----------------
      *
      */
 
@@ -56,7 +62,6 @@ public class PlayerGamerService {
                 .sorted(Comparator.comparing(PlayerGameDTO::getAverageMark).reversed())
                 .collect(Collectors.toList());
     }
-
 
 
     public PlayerGameDTO savePlayer(Player newPlayer){
@@ -82,8 +87,7 @@ public class PlayerGamerService {
         boolean repitedName = false;
         repitedName = playerRepository.findAll()
                 .stream().map(Player::getName)
-                .filter((n) -> n.equalsIgnoreCase(updatedPlayer.getName()))
-                .count() > 1;
+                .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getName()));
         if(!repitedName){
             playerRepository.save(updatedPlayer);
             return this.playerDTOfromPlayer(updatedPlayer);
@@ -93,7 +97,7 @@ public class PlayerGamerService {
         }
     }
 
-    public Optional<Player> deletePlayer(int id){
+    public Optional<PlayerGameDTO> deletePlayer(int id){
         Optional<Player> deletedPlayer = playerRepository.findById(id);
         playerRepository.deleteById(id);
         return null;
@@ -108,36 +112,28 @@ public class PlayerGamerService {
     }
 
 
-    public List<Game> findGamesByPlayerId(int id){
-        return gameRepository.findByPlayerId(id);
+    public List<GameDTO> findGamesByPlayerId(int id){
+        return gameRepository.findByPlayerId(id).stream()
+                .map(this::gameDTOfromGame)
+                .collect(Collectors.toList());
     }
 
-    public Game saveGame(Player player, int result){
-        return gameRepository.save(new Game(null, result, player));
+    public GameDTO saveGame(Player player, int result){
+        Game savedGame = gameRepository.save(new Game(null, result, player));
+        return gameDTOfromGame(savedGame);
     }
 
     public double averageMarkPLayer(int idPlayer){
-        List<Game> games = findGamesByPlayerId(idPlayer);
+        List<GameDTO> games = findGamesByPlayerId(idPlayer);
         return  Math.round((games.stream()
-                .mapToDouble(Game::getMark)
+                .mapToDouble(GameDTO::getMark)
                 .average()
                 .orElse(Double.NaN)) * 100.00) / 100.00;
     }
 
-    public List<Game> findAll(){
-        return gameRepository.findAll();
-    }
-
-    public Optional<Game> findGameById(int id){
-        return gameRepository.findById(id);
-    }
-
-    public List<Game> deleteGamesByPlayerId(int id){
-        List<Game> gameList = findGamesByPlayerId(id);
+    public void deleteGamesByPlayerId(int id){
         gameRepository.deleteByPlayerId(id);
-        return gameList;
     }
-
 
     public double succesRate(int id){
         int rounds = gameRepository.findByPlayerId(id).size();
@@ -150,6 +146,22 @@ public class PlayerGamerService {
             return (double) Math.round(((double) wonRounds / rounds) * 10000) /100;
         }
     }
+
+    public PlayerGameDTO getWorstPlayer(){
+        List<PlayerGameDTO> playersList = this.getAllPlayersDTORanking();
+        return playersList.stream()
+                .min(Comparator.comparing(PlayerGameDTO::getAverageMark))
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+    public PlayerGameDTO getBestPlayer(){
+        List<PlayerGameDTO> playersList = this.getAllPlayersDTORanking();
+        return playersList.stream()
+                .max(Comparator.comparing(PlayerGameDTO::getAverageMark))
+                .orElseThrow(NoSuchElementException::new);
+    }
+
+
 
 
 }

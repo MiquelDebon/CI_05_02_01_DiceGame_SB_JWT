@@ -1,5 +1,6 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.GameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Game;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
@@ -18,19 +19,14 @@ public class DiceController {
     /**
      * ⚠️TODO
      *      Send ResponseEntity<?>
+     *      Add TimeStamp
      *      Add Documentation Swagger
      *      Make it reactive
      */
 
-    /**
-     * ☑️
-     * TODO GET /players/ranking: retorna el ranking mig de tots els jugadors/es del sistema. És a dir, el  percentatge mitjà d’èxits.
-     * TODO GET /players/ranking/loser: retorna el jugador/a  amb pitjor percentatge d’èxit.
-     * TODO GET /players/ranking/winner: retorna el  jugador amb pitjor percentatge d’èxit.
-     */
 
     /**
-     *  🟢POST /players: crea un jugador/a.
+     *  🟢POST Crea un jugador/a.
      *  🔗http://localhost:9005/players
      */
     @PostMapping("/")
@@ -42,12 +38,14 @@ public class DiceController {
     }
 
     /**
-     *  🟠PUT  /players: modifica el nom del jugador/a.
+     *  🟠PUT  Modifica el nom del jugador/a.
      *   🔗http://localhost:9005/players
      */
     @PutMapping()
-    public PlayerGameDTO updatePlayer(Player newPlayer){
-        return PGService.updatePlayer(newPlayer);
+    public PlayerGameDTO updatePlayer(@RequestBody Player newPlayer){
+        PlayerGameDTO updatedDTO = PGService.updatePlayer(newPlayer);
+        //TODO if null -> throw 400
+        return updatedDTO;
     }
 
     /**
@@ -55,7 +53,7 @@ public class DiceController {
      *  @see <a href="http://localhost:9005/players/2/games"> 🔗 http://localhost:9005/players/2/games </a>
      */
     @PostMapping("/{id}/games")
-    public Game playGame(@PathVariable int id){
+    public GameDTO playGame(@PathVariable int id){
         int gameResult = LogicGame.PLAY();
         Player player = PGService.findPlayerById(id);
         return PGService.saveGame(player, gameResult);
@@ -63,7 +61,7 @@ public class DiceController {
 
 
     /**
-     *  🔵GET /players/: retorna el llistat de tots  els jugadors/es del sistema amb el seu  percentatge mitjà d’èxits.
+     *  🔵GET   Retorna el llistat de tots  els jugadors/es del sistema amb el seu  percentatge mitjà d’èxits.
      *  @see <a href="http://localhost:9005/players"> 🔗http://localhost:9005/players</a>
      */
     @GetMapping()
@@ -72,16 +70,16 @@ public class DiceController {
     }
 
     /**
-     *  🔵GET /players/{id}/games: retorna el llistat de jugades per un jugador/a.
+     *  🔵GET Retorna el llistat de jugades per un jugador/a.
      *  @see <a href="http://localhost:9005/players/2"> 🔗http://localhost:9005/players/2</a>
      */
     @GetMapping("/{id}")
-    public List<Game> getGamePlayers(@PathVariable int id){
+    public List<GameDTO> getGamePlayers(@PathVariable int id){
         return PGService.findGamesByPlayerId(id);
     }
 
     /**
-     *  🔴DELETE /players/{id}/games: elimina les tirades del jugador/a.
+     *  🔴DELETE Elimina les tirades del jugador/a.
      *  🔗http://localhost:9005/players/2/games
      */
     @DeleteMapping("/{id}/games")
@@ -92,7 +90,7 @@ public class DiceController {
     }
 
     /**
-     *  🔵 GET /players/ranking: retorna el ranking mig de tots els jugadors/es del sistema. És a dir, el  percentatge mitjà d’èxits.
+     *  🔵 GET Retorna el ranking mig de tots els jugadors/es del sistema. És a dir, el  percentatge mitjà d’èxits.
      *  @see <a href="http://localhost:9005/players/ranking"> 🔗http://localhost:9005/players/ranking</a>
      */
     @GetMapping("/ranking")
@@ -102,24 +100,24 @@ public class DiceController {
 
 
     /**
-     *
-     * Other methods
-     *
+     *  🔵 GET Retorna el jugador/a  amb pitjor percentatge d’èxit.
+     *  @see <a href="http://localhost:9005/players/ranking/loser"> 🔗http://localhost:9005/players/ranking/loser</a>
      */
-
-    @GetMapping("/games")
-    public List<Game> getGames(){
-        return PGService.findAll();
-    }
-    @GetMapping("/player/{id}")
-    public PlayerGameDTO getPlayer(@PathVariable int id){
-        return PGService.findPlayerDTOById(id);
+    @GetMapping("/ranking/loser")
+    public PlayerGameDTO getWorstPlayer(){
+        return PGService.getWorstPlayer();
     }
 
-    @GetMapping("game/{id}")
-    public Game getGame(@PathVariable int id){
-        return PGService.findGameById(id).get();
+
+    /**
+     *  🔵 GET Retorna el  jugador amb pitjor percentatge d’èxit.
+     *  @see <a href="http://localhost:9005/players/ranking/winnerr"> 🔗http://localhost:9005/players/ranking/winner</a>
+     */
+    @GetMapping("/ranking/loser")
+    public PlayerGameDTO getBestPlayer(){
+        return PGService.getBestPlayer();
     }
+
 
 
 

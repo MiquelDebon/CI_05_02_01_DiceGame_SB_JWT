@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.OptionalDouble;
 
 @Slf4j
 @RestController
@@ -21,8 +22,7 @@ public class DiceController {
 
     /**
      * ⚠️TODO
-     *      Send ResponseEntity<?>
-     *      Add TimeStamp
+     *      Add Hexagonal
      *      Add Documentation Swagger
      *      Make it reactive
      */
@@ -168,9 +168,18 @@ public class DiceController {
         }catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
+    @GetMapping("/totalAverageMark")
+    public ResponseEntity<?> getAverageTotalMark(){
+        OptionalDouble averageMark = PGService.averageTotalMarks();
+        if(averageMark.isPresent()){
+            Double result = Math.round(averageMark.getAsDouble() * 100.00) / 100.00;
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
 

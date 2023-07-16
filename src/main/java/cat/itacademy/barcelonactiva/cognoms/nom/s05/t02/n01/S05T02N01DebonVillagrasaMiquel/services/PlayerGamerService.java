@@ -6,17 +6,11 @@ import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillag
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IGameRepository;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IplayerRepository;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,8 +21,6 @@ public class PlayerGamerService {
     private IGameRepository gameRepository;
     @Autowired
     private IplayerRepository playerRepository;
-    //TODO I wanna use Mapper I will add a nickName
-//    private final ModelMapper mapper = new ModelMapper();
 
 
     /**
@@ -148,6 +140,12 @@ public class PlayerGamerService {
                     .count();
             return (double) Math.round(((double) wonRounds / rounds) * 10000) /100;
         }
+    }
+
+    public OptionalDouble averageTotalMarks(){
+        return this.getAllPlayersDTO().stream()
+                .mapToDouble(PlayerGameDTO::getAverageMark)
+                .average();
     }
 
     public PlayerGameDTO getWorstPlayer(){

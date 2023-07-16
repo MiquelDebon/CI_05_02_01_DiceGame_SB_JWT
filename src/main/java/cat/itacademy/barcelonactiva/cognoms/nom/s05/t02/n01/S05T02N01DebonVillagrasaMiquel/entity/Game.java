@@ -25,4 +25,10 @@ public class Game {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore  //is used to ignore the logical property used in serialization and deserialization
     private Player player;
+
+    public Game(int mark, Player player){
+        id = null;
+        this.mark = mark;
+        this.player = player;
+    }
 }

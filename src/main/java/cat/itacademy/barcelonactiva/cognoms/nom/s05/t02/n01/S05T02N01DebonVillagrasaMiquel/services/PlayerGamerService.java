@@ -114,7 +114,7 @@ public class PlayerGamerService {
     }
 
     public GameDTO saveGame(Player player, int result){
-        Game savedGame = gameRepository.save(new Game(null, result, player));
+        Game savedGame = gameRepository.save(new Game(result, player));
         return gameDTOfromGame(savedGame);
     }
 

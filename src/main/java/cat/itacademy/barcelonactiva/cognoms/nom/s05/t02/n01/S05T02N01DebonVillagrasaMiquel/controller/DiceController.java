@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.util.OptionalDouble;
 
 @Slf4j
 @RestController
+@Tag(name = "IT-Academy")
 @RequestMapping("players")
 public class DiceController {
     //http://localhost:9005/swagger-ui/index.html
@@ -44,30 +46,11 @@ public class DiceController {
      *  🟢POST Crea un jugador/a.
      *  🔗http://localhost:9005/players
      */
-    @Operation(
-            tags = "IT-Academy",
-            summary = "Save one player",
-            description = "Description: This method save a new player in the database",
-            parameters = {
-                    @Parameter(
-                            name = "name",
-                            description = "The player's name otherwise it will ANONYMOUS",
-                            required = false)
-            },
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successful response",
-                            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content
-                    )
-            }
-    )
+    @Operation(summary = "Save one player", description = "Description: This method save a new player in the database")
+    @Parameter(name = "name", description = "The player's name otherwise it will ANONYMOUS")
+    @ApiResponse(responseCode = "200", description = "Successful response",
+            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @ApiResponse(responseCode = "400", description = "Bad request buddy", content = @Content)
     @PostMapping("/")
     public ResponseEntity<?> savePlayer(@RequestParam(required = false) String name){
         PlayerGameDTO returnPlayer;
@@ -89,30 +72,10 @@ public class DiceController {
      *  🟠PUT  Modifica el nom del jugador/a.
      *   🔗http://localhost:9005/players
      */
-    @Operation(
-            tags = "IT-Academy",
-            summary = "Update one player",
-            description = "Description: This method update a new player in the database",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    required = true,
-                    description = "Expected a player JSON",
-                    content = @Content(schema = @Schema(implementation = Player.class))),
-
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successful response",
-                            content = @Content(schema = @Schema(
-                                    implementation = PlayerGameDTO.class),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content
-                    )
-            }
-    )
+    @Operation(summary = "Update one player", description = "Description: This method update a new player in the database")
+    @ApiResponse(responseCode = "200", description = "Successful response",
+            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @ApiResponse(responseCode = "400", description = "Bad request buddy", content = @Content)
     @PutMapping()
     public ResponseEntity<?> updatePlayer(@RequestBody Player newPlayer){
         try{
@@ -131,25 +94,11 @@ public class DiceController {
      *  🟢POST un jugador/a específic realitza una tirada dels daus.
      *  @see <a href="http://localhost:9005/players/2/games"> 🔗 http://localhost:9005/players/2/games </a>
      */
-    @Operation(
-            tags = "IT-Academy",
-            summary = "Play by ID player",
-            description = "Description: This method is to play a round",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successful response",
-                            content = @Content(schema = @Schema(implementation = GameDTO.class),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content
-                    )
-            }
-    )
+    @Operation(summary = "Play by ID player", description = "Description: This method is to play a round")
     @Parameter(name = "id", description = "PLay the game by PlayerID", required = true)
+    @ApiResponse(responseCode = "200", description = "Successful response",
+            content = @Content(schema = @Schema(implementation = GameDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @ApiResponse(responseCode = "400", description = "Bad request buddy", content = @Content)
     @PostMapping("/{id}/games")
     public ResponseEntity<?> playGame(@PathVariable int id){
         int gameResult = LogicGame.PLAY();
@@ -167,26 +116,10 @@ public class DiceController {
      *  🔵GET   Retorna el llistat de tots  els jugadors/es del sistema amb el seu  percentatge mitjà d’èxits.
      *  @see <a href="http://localhost:9005/players"> 🔗http://localhost:9005/players</a>
      */
-    @Operation(
-            tags = "IT-Academy",
-            summary = "Get all players",
-            description = "Description: This method retrieve all the player with their average mark"
-    )
-    @ApiResponses({ // using this annotation to try, but I prefer all inside @Operation
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful response",
-                    content = @Content(schema = @Schema(
-                        implementation = PlayerGameDTO.class),
-                        mediaType = MediaType.APPLICATION_JSON_VALUE
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad request buddy",
-                    content = @Content
-            )
-    })
+    @Operation(summary = "Get all players", description = "Description: This method retrieve all the player with their average mark")
+    @ApiResponse(responseCode = "200", description = "Successful response",
+            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @ApiResponse(responseCode = "400", description = "Bad request buddy", content = @Content)
     @GetMapping()
     public ResponseEntity<?> getAllPlayers(){
         try{
@@ -203,7 +136,6 @@ public class DiceController {
      *  @see <a href="http://localhost:9005/players/2"> 🔗http://localhost:9005/players/2</a>
      */
     @Operation(
-            tags = "IT-Academy",
             summary = "All games from player",
             description = "Description: This method retrieve all the games from the database by player ID")
     @Parameter(name = "id", description = "ID player", required = true, example = "1")
@@ -223,34 +155,11 @@ public class DiceController {
      *  🔴DELETE Elimina les tirades del jugador/a.
      *  🔗http://localhost:9005/players/2/games
      */
-    @Operation(
-            tags = "IT-Academy",
-            summary = "Delete all the games from player by id",
-            description = "Description: This method deletes all the games in the database from a player",
-            parameters = {
-                    @Parameter(
-                            name = "id",
-                            description = "ID player",
-                            required = true,
-                            example = "1"
-                    )
-            },
-
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successful response",
-                            content = @Content(schema = @Schema(
-                                    implementation = PlayerGameDTO.class),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content
-                    )
-            }
-    )
+    @Operation(summary = "Delete all the games from player by id", description = "Description: This method deletes all the games in the database from a player")
+    @Parameter(name = "id", description = "ID player", required = true, example = "1")
+    @ApiResponse(responseCode = "200", description = "Successful response",
+            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @ApiResponse(responseCode = "400", description = "Bad request buddy", content = @Content)
     @DeleteMapping("/{id}/games")
     public ResponseEntity<?> deletePlayerGames(@PathVariable int id){
         try{
@@ -267,33 +176,11 @@ public class DiceController {
      *  @see <a href="http://localhost:9005/players/ranking"> 🔗http://localhost:9005/players/ranking</a>
      */
 
-    @Operation(
-            tags = "IT-Academy",
-            summary = "Delete all the games from player by id",
-            description = "Description: This method deletes all the games in the database from a player",
-            parameters = {
-                    @Parameter(
-                            name = "id",
-                            description = "ID player",
-                            required = true,
-                            example = "1"
-                    )
-            },
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successful response",
-                            content = @Content(schema = @Schema(
-                                    implementation = PlayerGameDTO.class),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content
-                    )
-            }
-    )
+    @Operation(summary = "Delete all the games from player by id", description = "Description: This method deletes all the games in the database from a player")
+    @Parameter(name = "id", description = "ID player", required = true, example = "1")
+    @ApiResponse(responseCode = "200", description = "Successful response",
+            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @ApiResponse(responseCode = "400", description = "Bad request buddy", content = @Content)
     @GetMapping("/ranking")
     public ResponseEntity<?> getRankingPlayers(){
         try{
@@ -309,25 +196,10 @@ public class DiceController {
      *  🔵 GET Retorna el jugador/a  amb pitjor percentatge d’èxit.
      *  @see <a href="http://localhost:9005/players/ranking/loser"> 🔗http://localhost:9005/players/ranking/loser</a>
      */
-    @Operation(
-            tags = "IT-Academy",
-            summary = "The worst player",
-            description = "Description: This method retrieve the worst player by the average mark",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successful response",
-                            content = @Content(schema = @Schema(
-                                    implementation = PlayerGameDTO.class),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content
-                    )
-            }
-    )
+    @Operation(summary = "The worst player", description = "Description: This method retrieve the worst player by the average mark")
+    @ApiResponse(responseCode = "200", description = "Successful response",
+            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @ApiResponse(responseCode = "400", description = "Bad request buddy", content = @Content)
     @GetMapping("/ranking/loser")
     public ResponseEntity<?> getWorstPlayer(){
         try{
@@ -343,25 +215,10 @@ public class DiceController {
      *  🔵 GET Retorna el  jugador amb millor percentatge d’èxit.
      *  @see <a href="http://localhost:9005/players/ranking/winnerr"> 🔗http://localhost:9005/players/ranking/winner</a>
      */
-    @Operation(
-            tags = "IT-Academy",
-            summary = "The best player",
-            description = "Description: This method retrieve the best player by the average mark",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successful response",
-                            content = @Content(schema = @Schema(
-                                    implementation = PlayerGameDTO.class),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content
-                    )
-            }
-    )
+    @Operation(summary = "The best player", description = "Description: This method retrieve the best player by the average mark",)
+    @ApiResponse(responseCode = "200", description = "Successful response",
+            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE))
+    @ApiResponse(responseCode = "400", description = "Bad request buddy", content = @Content)
     @GetMapping("/ranking/winner")
     public ResponseEntity<?> getBestPlayer(){
         try{
@@ -373,7 +230,6 @@ public class DiceController {
     }
 
     @Operation(
-            tags = "IT-Academy",
             summary = "Average success all players",
             description = "Description: This method retrieve the average mark of success from all player",
             responses = {

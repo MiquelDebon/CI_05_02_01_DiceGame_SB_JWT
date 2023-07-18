@@ -9,7 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @OpenAPIDefinition(
 		info = @Info(title = "API Rest Swagger"),
-		tags = @Tag(name = "IT-Academy", description = "Main methods Documentation")
+		tags = @Tag(name = "IT-Academy", description = "Controller methods to deal with the Game")
+
 )
 public class S05T02N01DebonVillagrasaMiquelApplication {
 

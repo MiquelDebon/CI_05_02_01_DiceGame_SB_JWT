@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,6 +36,7 @@ public class ServicesTest {
         when(playerRepository.findAll()).thenReturn(
                 Stream.of(new Player(1, "testName1"), new Player(2, "testName2"))
                         .collect(Collectors.toList()));
+        assertEquals(2, service.getAllPlayersDTO().size());
         assertEquals(2, service.getAllPlayersDTORanking().size());
         assertEquals("testName1",service.getAllPlayersDTORanking().get(0).getName());
     }
@@ -78,7 +79,7 @@ public class ServicesTest {
     }
 
     @Test
-    public void deleteGamesByPlayerId(){
+    public void deleteGamesByPlayerIdold(){
         Integer id = 1;
         Player playerTest = new Player(id, "testPlayer");
         for(int mark=1; mark<5; mark++){
@@ -91,6 +92,13 @@ public class ServicesTest {
 //        assertEquals(5,service.findGamesByPlayerId(id).size());
         service.deleteGamesByPlayerId(id);
         assertEquals(0,service.findGamesByPlayerId(id).size());
+    }
+
+    @Test
+    public void deleteGamesByPlayerId(){
+        Integer id = 1;
+        service.deleteGamesByPlayerId(id);
+        verify(gameRepository, times(1)).deleteByPlayerId(id);
     }
 
 }

@@ -4,9 +4,15 @@ import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillag
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services.PlayerGamerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,11 +23,16 @@ import java.util.OptionalDouble;
 @RestController
 @RequestMapping("players")
 public class DiceController {
+    //http://localhost:9005/swagger-ui/index.html
+
     @Autowired
     private PlayerGamerService PGService;
 
+
     /**
      * ⚠️TODO
+     *      Interface Service
+     *      Spring Security
      *      Add Hexagonal
      *      Add Documentation Swagger
      *      Make it reactive
@@ -32,6 +43,30 @@ public class DiceController {
      *  🟢POST Crea un jugador/a.
      *  🔗http://localhost:9005/players
      */
+    @Operation(
+            tags = "IT-Academy",
+            summary = "SAVE one player",
+            description = "Description: This method save a new player in the database",
+            parameters = {
+                    @Parameter(
+                            name = "name",
+                            description = "The player's name otherwise it will ANONYMOUS",
+                            required = false)
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successful response",
+                            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request buddy",
+                            content = @Content
+                    )
+            }
+    )
     @PostMapping("/")
     public ResponseEntity<?> savePlayer(@RequestParam(required = false) String name){
         PlayerGameDTO returnPlayer;
@@ -52,6 +87,29 @@ public class DiceController {
      *  🟠PUT  Modifica el nom del jugador/a.
      *   🔗http://localhost:9005/players
      */
+    @Operation(
+            tags = "IT-Academy",
+            summary = "UPDATE one player",
+            description = "Description: This method update a new player in the database",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "Expected a player JSON",
+                    content = @Content(schema = @Schema(implementation = Player.class))),
+
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successful response",
+                            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request buddy",
+                            content = @Content
+                    )
+            }
+    )
     @PutMapping()
     public ResponseEntity<?> updatePlayer(@RequestBody Player newPlayer){
         try{
@@ -70,6 +128,25 @@ public class DiceController {
      *  🟢POST un jugador/a específic realitza una tirada dels daus.
      *  @see <a href="http://localhost:9005/players/2/games"> 🔗 http://localhost:9005/players/2/games </a>
      */
+    @Operation(
+            tags = "IT-Academy",
+            summary = "PLAY by ID player",
+            description = "Description: This method is to play a round",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successful response",
+                            content = @Content(schema = @Schema(implementation = GameDTO.class),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE)
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request buddy",
+                            content = @Content
+                    )
+            }
+    )
+    @Parameter(name = "id", description = "PLay the game by PlayerID", required = true)
     @PostMapping("/{id}/games")
     public ResponseEntity<?> playGame(@PathVariable int id){
         int gameResult = LogicGame.PLAY();

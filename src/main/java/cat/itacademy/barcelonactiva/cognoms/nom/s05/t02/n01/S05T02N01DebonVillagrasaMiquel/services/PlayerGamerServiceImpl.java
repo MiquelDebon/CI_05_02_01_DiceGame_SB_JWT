@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 //@AllArgsConstructor
-public class PlayerGamerService {
+public class PlayerGamerServiceImpl implements IPlayerGamerService{
     @Autowired
     private IGameRepository gameRepository;
     @Autowired
@@ -45,12 +45,14 @@ public class PlayerGamerService {
      *
      */
 
+    @Override
     public List<PlayerGameDTO> getAllPlayersDTO(){
         return playerRepository.findAll().stream()
                 .map(p -> this.playerDTOfromPlayer(p))
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<PlayerGameDTO> getAllPlayersDTORanking(){
         return playerRepository.findAll().stream()
                 .map( p -> rankingPlayerDTOfromPlayer(p))
@@ -58,7 +60,7 @@ public class PlayerGamerService {
                 .collect(Collectors.toList());
     }
 
-
+    @Override
     public PlayerGameDTO savePlayer(Player newPlayer){
         if(newPlayer.getName().equals("ANONYMOYS")){
             playerRepository.save(newPlayer);
@@ -78,6 +80,7 @@ public class PlayerGamerService {
         }
     }
 
+    @Override
     public PlayerGameDTO updatePlayer(Player updatedPlayer){
         boolean repitedName = false;
         repitedName = playerRepository.findAll()
@@ -92,44 +95,68 @@ public class PlayerGamerService {
         }
     }
 
-    public Optional<PlayerGameDTO> deletePlayer(int id){
-        Optional<Player> deletedPlayer = playerRepository.findById(id);
-        playerRepository.deleteById(id);
-        return null;
+    @Override
+    public Optional<PlayerGameDTO> findPlayerDTOById(int id){
+        Optional<Player> player = playerRepository.findById(id);
+        if(player.isPresent()){
+            return Optional.of(this.playerDTOfromPlayer(player.get()));
+        }else{
+            return null;
+        }
     }
 
-    public PlayerGameDTO findPlayerDTOById(int id){
-        return this.playerDTOfromPlayer(playerRepository.findById(id).get());
-    }
-
-    public Player findPlayerById(int id){
-        return playerRepository.findById(id).get();
-    }
-
-
+    @Override
     public List<GameDTO> findGamesByPlayerId(int id){
         return gameRepository.findByPlayerId(id).stream()
                 .map(this::gameDTOfromGame)
                 .collect(Collectors.toList());
     }
 
-    public GameDTO saveGame(Player player, int result){
-        Game savedGame = gameRepository.save(new Game(result, player));
-        return gameDTOfromGame(savedGame);
+    @Override
+    public GameDTO saveGame(int id, int result){
+        Optional<Player> player = playerRepository.findById(id);
+        if(player.isPresent()){
+            Game savedGame = gameRepository.save(new Game(result, player.get()));
+            return gameDTOfromGame(savedGame);
+        }else {
+            return null;
+        }
     }
 
-    public double averageMarkPLayer(int idPlayer){
-        List<GameDTO> games = findGamesByPlayerId(idPlayer);
-        return  Math.round((games.stream()
-                .mapToDouble(GameDTO::getMark)
-                .average()
-                .orElse(Double.NaN)) * 100.00) / 100.00;
-    }
-
+    @Override
     public void deleteGamesByPlayerId(int id){
         gameRepository.deleteByPlayerId(id);
     }
 
+    @Override
+    public Optional<PlayerGameDTO> getWorstPlayer(){
+        List<PlayerGameDTO> playersList = this.getAllPlayersDTORanking();
+        return Optional.of(playersList.stream()
+                .min(Comparator.comparing(PlayerGameDTO::getAverageMark))
+                .orElseThrow(NoSuchElementException::new));
+    }
+
+    @Override
+    public Optional<PlayerGameDTO> getBestPlayer(){
+        List<PlayerGameDTO> playersList = this.getAllPlayersDTORanking();
+        return Optional.of(playersList.stream()
+                .max(Comparator.comparing(PlayerGameDTO::getAverageMark))
+                .orElseThrow(NoSuchElementException::new));
+    }
+
+    @Override
+    public OptionalDouble averageTotalMarks(){
+        return this.getAllPlayersDTO().stream()
+                .mapToDouble(PlayerGameDTO::getAverageMark)
+                .average();
+    }
+
+
+    /**
+     *
+     * support methods
+     *
+     */
     public double succesRate(int id){
         int rounds = gameRepository.findByPlayerId(id).size();
         if(rounds == 0) return 0;
@@ -142,27 +169,17 @@ public class PlayerGamerService {
         }
     }
 
-    public OptionalDouble averageTotalMarks(){
-        return this.getAllPlayersDTO().stream()
-                .mapToDouble(PlayerGameDTO::getAverageMark)
-                .average();
+    public Double averageMarkPLayer(int idPlayer){
+        if(playerRepository.existsById(idPlayer)){
+            List<GameDTO> games = findGamesByPlayerId(idPlayer);
+            return  Math.round((games.stream()
+                    .mapToDouble(GameDTO::getMark)
+                    .average()
+                    .orElse(Double.NaN)) * 100.00) / 100.00;
+        }else {
+            return null;
+        }
     }
-
-    public PlayerGameDTO getWorstPlayer(){
-        List<PlayerGameDTO> playersList = this.getAllPlayersDTORanking();
-        return playersList.stream()
-                .min(Comparator.comparing(PlayerGameDTO::getAverageMark))
-                .orElseThrow(NoSuchElementException::new);
-    }
-
-    public PlayerGameDTO getBestPlayer(){
-        List<PlayerGameDTO> playersList = this.getAllPlayersDTORanking();
-        return playersList.stream()
-                .max(Comparator.comparing(PlayerGameDTO::getAverageMark))
-                .orElseThrow(NoSuchElementException::new);
-    }
-
-
 
 
 }

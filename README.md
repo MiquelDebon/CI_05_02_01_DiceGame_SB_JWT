@@ -18,3 +18,6 @@
 - JWT - SpringBoot Security
   - [Bezkoder - Spring Boot Token based Authentication with Spring Security & JWT](https://www.bezkoder.com/spring-boot-jwt-authentication/)
   - [Amigoscode - Spring Boot 3 + Spring Security 6 - JWT Authentication and Authorisation [NEW] [2023]](https://www.youtube.com/watch?v=KxqlJblhzfI&t=1040s)
+- More Swagger
+  - [Swagger 3 annotations in Spring Boot](https://www.bezkoder.com/swagger-3-annotations/#Swagger_3_ApiResponses_and_ApiResponse_annotation)
+  - [Spring Boot + Swagger 3 example (with OpenAPI 3) - Advanced](https://www.bezkoder.com/spring-boot-swagger-3/)

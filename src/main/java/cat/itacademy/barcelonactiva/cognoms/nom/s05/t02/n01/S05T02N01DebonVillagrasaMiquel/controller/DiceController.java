@@ -1,5 +1,8 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.EmptyDataBaseException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.ExceptionsMessage;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.UserNotFoundException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.GameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
@@ -74,8 +77,10 @@ public class DiceController {
                 returnPlayer = PGService.savePlayer(new Player(null, name));
             }
             return new ResponseEntity<>(returnPlayer, HttpStatus.CREATED);
-        }catch (RuntimeException e){
-            return new ResponseEntity<>("An error occurred", HttpStatus.BAD_REQUEST);
+        }catch (DuplicateUserNameException e){
+            throw e;
+        }catch (Exception e){
+            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -105,8 +110,8 @@ public class DiceController {
             }else{
                 return new ResponseEntity<>(updatedDTO, HttpStatus.OK);
             }
-        }catch (RuntimeException e){
-            return new ResponseEntity<>("Invalid player", HttpStatus.BAD_REQUEST);
+        }catch (Exception e){
+            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -127,6 +132,10 @@ public class DiceController {
             content = @Content(schema = @Schema(implementation = GameDTO.class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE))
     @ApiResponse(
+            responseCode = "404",
+            description = ExceptionsMessage.NO_USER_BY_THIS_ID,
+            content = @Content)
+    @ApiResponse(
             responseCode = "400",
             description = "Bad request buddy",
             content = @Content)
@@ -136,8 +145,10 @@ public class DiceController {
         try{
             GameDTO gameDTO = PGService.saveGame(id, gameResult);
             return new ResponseEntity<>(gameDTO, HttpStatus.OK);
-        }catch (RuntimeException e){
-            return new ResponseEntity<>(NO_SUCH_PLAYER, HttpStatus.NOT_FOUND);
+        }catch (UserNotFoundException e){
+            throw e;
+        }catch (Exception e){
+            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -155,14 +166,20 @@ public class DiceController {
             content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE))
     @ApiResponse(
-            responseCode = "400",
-            description = "Bad request buddy",
+            responseCode = "204",
+            description = ExceptionsMessage.EMPTY_DATABASE,
+            content = @Content)
+    @ApiResponse(
+            responseCode = "500",
+            description = "Internal error",
             content = @Content)
     @GetMapping()
     public ResponseEntity<?> getAllPlayers(){
         try{
             List<PlayerGameDTO> returnList = PGService.getAllPlayersDTO();
             return new ResponseEntity<>(returnList, HttpStatus.OK);
+        }catch (EmptyDataBaseException e){
+            throw e;
         }catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -184,6 +201,10 @@ public class DiceController {
             description = "Successful response",
             content = @Content(schema = @Schema(implementation = GameDTO.class), mediaType = "application/json"))
     @ApiResponse(
+            responseCode = "404",
+            description = ExceptionsMessage.NO_USER_BY_THIS_ID,
+            content = @Content)
+    @ApiResponse(
             responseCode = "400",
             description = "Bad request buddy",
             content = @Content)
@@ -192,8 +213,10 @@ public class DiceController {
         try{
             List<GameDTO> returnList =  PGService.findGamesByPlayerId(id);
             return new ResponseEntity<>(returnList, HttpStatus.OK);
-        }catch (RuntimeException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (UserNotFoundException e){
+            throw e;
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -219,11 +242,13 @@ public class DiceController {
     @DeleteMapping("/{id}/games")
     public ResponseEntity<?> deletePlayerGames(@PathVariable int id){
         try{
-            PGService.deleteGamesByPlayerId(id);
             PlayerGameDTO player = PGService.findPlayerDTOById(id).get();
+            PGService.deleteGamesByPlayerId(id);
             return new ResponseEntity<>(player, HttpStatus.OK);
-        }catch (RuntimeException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }catch (UserNotFoundException e){
+            throw e;
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -246,14 +271,24 @@ public class DiceController {
             content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE))
     @ApiResponse(
+            responseCode = "204",
+            description = ExceptionsMessage.EMPTY_DATABASE,
+            content = @Content)
+    @ApiResponse(
             responseCode = "400",
             description = "Bad request buddy",
+            content = @Content)
+    @ApiResponse(
+            responseCode = "500",
+            description = ExceptionsMessage.INTERNAL_ERROR,
             content = @Content)
     @GetMapping("/ranking")
     public ResponseEntity<?> getRankingPlayers(){
         try{
             List<PlayerGameDTO> returnList = PGService.getAllPlayersDTORanking();
             return new ResponseEntity<>(returnList, HttpStatus.OK);
+        }catch (EmptyDataBaseException e){
+            throw e;
         }catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -273,18 +308,20 @@ public class DiceController {
             content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE))
     @ApiResponse(
-            responseCode = "400",
-            description = "Bad request buddy",
+            responseCode = "404",
+            description = ExceptionsMessage.EMPTY_DATABASE,
+            content = @Content)
+    @ApiResponse(
+            responseCode = "500",
+            description = ExceptionsMessage.INTERNAL_ERROR,
             content = @Content)
     @GetMapping("/ranking/loser")
     public ResponseEntity<?> getWorstPlayer(){
         try{
             Optional<PlayerGameDTO> player = PGService.getWorstPlayer();
-            if(player.isPresent()){
-                return new ResponseEntity<>(player, HttpStatus.OK);
-            }else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+            return new ResponseEntity<>(player, HttpStatus.OK);
+        }catch (EmptyDataBaseException e){
+            throw e;
         }catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -297,25 +334,31 @@ public class DiceController {
      */
     @Operation(
             summary = "The best player",
-            description = "Description: This method retrieve the best player by the average mark")
-    @ApiResponse(
-            responseCode = "200",
-            description = "Successful response",
-            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
-                    mediaType = MediaType.APPLICATION_JSON_VALUE))
-    @ApiResponse(
-            responseCode = "400",
-            description = "Bad request buddy",
-            content = @Content)
-    @GetMapping("/ranking/winner")
+            description = "Description: This method retrieve the best player by the average mark",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Successful response",
+                            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = ExceptionsMessage.EMPTY_DATABASE,
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = ExceptionsMessage.INTERNAL_ERROR,
+                            content = @Content)
+
+            }
+    )
+        @GetMapping("/ranking/winner")
     public ResponseEntity<?> getBestPlayer(){
         try{
             Optional<PlayerGameDTO> player =  PGService.getBestPlayer();
-            if(player.isPresent()){
-                return new ResponseEntity<>(player, HttpStatus.OK);
-            }else{
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+            return new ResponseEntity<>(player, HttpStatus.OK);
+        }catch (EmptyDataBaseException e){
+            throw e;
         }catch (RuntimeException e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -331,10 +374,13 @@ public class DiceController {
                             content = @Content(schema = @Schema())
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content
-                    )
+                            responseCode = "204",
+                            description = ExceptionsMessage.EMPTY_DATABASE,
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = ExceptionsMessage.INTERNAL_ERROR,
+                            content = @Content)
             }
     )
     @GetMapping("/totalAverageMark")

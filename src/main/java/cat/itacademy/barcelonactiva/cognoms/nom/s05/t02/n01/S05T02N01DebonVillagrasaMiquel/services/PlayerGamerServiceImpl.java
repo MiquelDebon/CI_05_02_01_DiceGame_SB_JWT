@@ -1,5 +1,9 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.EmptyDataBaseException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.ExceptionsMessage;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.UserNotFoundException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.GameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Game;
@@ -45,19 +49,30 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
      *
      */
 
+
     @Override
     public List<PlayerGameDTO> getAllPlayersDTO(){
-        return playerRepository.findAll().stream()
-                .map(p -> this.playerDTOfromPlayer(p))
-                .collect(Collectors.toList());
+        try{
+            return playerRepository.findAll().stream()
+                    .map(p -> this.playerDTOfromPlayer(p))
+                    .collect(Collectors.toList());
+        }catch (RuntimeException e){
+            log.error(ExceptionsMessage.EMPTY_DATABASE);
+            throw new EmptyDataBaseException(ExceptionsMessage.EMPTY_DATABASE);
+        }
     }
 
     @Override
     public List<PlayerGameDTO> getAllPlayersDTORanking(){
-        return playerRepository.findAll().stream()
-                .map( p -> rankingPlayerDTOfromPlayer(p))
-                .sorted(Comparator.comparing(PlayerGameDTO::getAverageMark).reversed())
-                .collect(Collectors.toList());
+        try {
+            return playerRepository.findAll().stream()
+                    .map(p -> rankingPlayerDTOfromPlayer(p))
+                    .sorted(Comparator.comparing(PlayerGameDTO::getAverageMark).reversed())
+                    .collect(Collectors.toList());
+        }catch (RuntimeException e){
+            log.error(ExceptionsMessage.EMPTY_DATABASE);
+            throw new EmptyDataBaseException(ExceptionsMessage.EMPTY_DATABASE);
+        }
     }
 
     @Override
@@ -66,18 +81,19 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
             playerRepository.save(newPlayer);
             return this.playerDTOfromPlayer(newPlayer);
         }else{
-            boolean repitedName = false;
-            repitedName = playerRepository.findAll()
+            boolean repitedName = playerRepository.findAll()
                     .stream().map(Player::getName)
                     .anyMatch((n)-> n.equalsIgnoreCase(newPlayer.getName()));
             if(!repitedName){
                 playerRepository.save(newPlayer);
                 return this.playerDTOfromPlayer(newPlayer);
             }else{
-                log.error("Duplicated Name");
-                return null;
+                log.error(ExceptionsMessage.DUPLICATED_USER_NAME);
+                throw new DuplicateUserNameException(ExceptionsMessage.DUPLICATED_USER_NAME);
             }
         }
+
+
     }
 
     @Override
@@ -90,8 +106,8 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
             playerRepository.save(updatedPlayer);
             return this.playerDTOfromPlayer(updatedPlayer);
         }else{
-            log.error("Duplicated Name");
-            return null;
+            log.error(ExceptionsMessage.DUPLICATED_USER_NAME);
+            throw new DuplicateUserNameException(ExceptionsMessage.DUPLICATED_USER_NAME);
         }
     }
 
@@ -101,15 +117,21 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
         if(player.isPresent()){
             return Optional.of(this.playerDTOfromPlayer(player.get()));
         }else{
-            return null;
+            log.error(ExceptionsMessage.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(ExceptionsMessage.NO_USER_BY_THIS_ID);
         }
     }
 
     @Override
     public List<GameDTO> findGamesByPlayerId(int id){
-        return gameRepository.findByPlayerId(id).stream()
-                .map(this::gameDTOfromGame)
-                .collect(Collectors.toList());
+        if(playerRepository.existsById(id)){
+            return gameRepository.findByPlayerId(id).stream()
+                    .map(this::gameDTOfromGame)
+                    .collect(Collectors.toList());
+        }else{
+            log.error(ExceptionsMessage.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(ExceptionsMessage.NO_USER_BY_THIS_ID);
+        }
     }
 
     @Override
@@ -119,13 +141,19 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
             Game savedGame = gameRepository.save(new Game(result, player.get()));
             return gameDTOfromGame(savedGame);
         }else {
-            return null;
+            log.error(ExceptionsMessage.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(ExceptionsMessage.NO_USER_BY_THIS_ID);
         }
     }
 
     @Override
     public void deleteGamesByPlayerId(int id){
-        gameRepository.deleteByPlayerId(id);
+        if(playerRepository.existsById(id)){
+            gameRepository.deleteByPlayerId(id);
+        }else{
+            log.error(ExceptionsMessage.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(ExceptionsMessage.NO_USER_BY_THIS_ID);
+        }
     }
 
     @Override
@@ -170,15 +198,12 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
     }
 
     public Double averageMarkPLayer(int idPlayer){
-        if(playerRepository.existsById(idPlayer)){
-            List<GameDTO> games = findGamesByPlayerId(idPlayer);
-            return  Math.round((games.stream()
-                    .mapToDouble(GameDTO::getMark)
-                    .average()
-                    .orElse(Double.NaN)) * 100.00) / 100.00;
-        }else {
-            return null;
-        }
+        List<GameDTO> games = findGamesByPlayerId(idPlayer);
+        return  Math.round((games.stream()
+                .mapToDouble(GameDTO::getMark)
+                .average()
+                .orElse(Double.NaN)) * 100.00) / 100.00;
+
     }
 
 

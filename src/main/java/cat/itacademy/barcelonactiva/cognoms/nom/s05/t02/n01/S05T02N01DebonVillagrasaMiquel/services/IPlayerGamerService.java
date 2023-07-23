@@ -1,5 +1,6 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.UserNotFoundException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.GameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
@@ -17,7 +18,7 @@ public interface IPlayerGamerService {
     GameDTO saveGame(int id, int result);
     void deleteGamesByPlayerId(int id);
     Optional<PlayerGameDTO> findPlayerDTOById(int id);
-    List<GameDTO> findGamesByPlayerId(int id);
+    List<GameDTO> findGamesByPlayerId(int id) throws UserNotFoundException;
     Optional<PlayerGameDTO> getWorstPlayer();
     Optional<PlayerGameDTO> getBestPlayer();
     OptionalDouble averageTotalMarks();

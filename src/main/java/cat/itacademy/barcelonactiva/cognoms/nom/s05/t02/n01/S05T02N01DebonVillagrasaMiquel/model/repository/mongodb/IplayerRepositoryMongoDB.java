@@ -5,6 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IplayerRepositoryMongoDB extends MongoRepository<PlayerMongoDB, Integer> {
-    boolean existsByName(String name);
+public interface IplayerRepositoryMongoDB extends MongoRepository<PlayerMongoDB, String> {
 }

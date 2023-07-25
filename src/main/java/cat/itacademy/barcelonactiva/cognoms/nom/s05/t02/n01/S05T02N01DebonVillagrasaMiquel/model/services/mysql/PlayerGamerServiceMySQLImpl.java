@@ -1,17 +1,15 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mysql;
 
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.UserNotFoundException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.GameDTO;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.PlayerGameDTO;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mongodb.GameMongoDB;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mongodb.PlayerMongoDB;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mysql.GameDTO;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mysql.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.GameMySQL;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.PlayerMySQL;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mongodb.IGameRepositoryMongoDB;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mongodb.IplayerRepositoryMongoDB;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.UserNotFoundException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql.IplayerRepositoryMySQL;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql.IGameRepositoryMySQL;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +19,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-//@AllArgsConstructor
-public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB {
+public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     @Autowired
-    private IGameRepositoryMongoDB gameRepositoryMongoDB;
+    private IGameRepositoryMySQL gameRepository;
     @Autowired
-    private IplayerRepositoryMongoDB playerRepositoryMongoDB;
+    private IplayerRepositoryMySQL playerRepository;
 
 
     /**
@@ -35,20 +32,19 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
      *
      */
 
-
-    public PlayerGameDTO playerDTOfromPlayer(PlayerMongoDB player){
+    public PlayerGameDTO playerDTOfromPlayer(PlayerMySQL player){
         return new PlayerGameDTO(player.getId(), player.getName(), this.averageMarkPLayer(player.getId()));
     }
-    public PlayerGameDTO rankingPlayerDTOfromPlayer(PlayerMongoDB player){
+    public PlayerGameDTO rankingPlayerDTOfromPlayer(PlayerMySQL player){
         return new PlayerGameDTO(player.getId(), player.getName(), this.succesRate(player.getId()));
     }
-    public GameDTO gameDTOfromGame(GameMongoDB game){
+    public GameDTO gameDTOfromGame(GameMySQL game){
         return new GameDTO(game.getMark());
     }
 
     /**
      *
-     * ℹ️    ------- METHODS ----------------
+     *  ℹ️    ------- METHODS ----------------
      *
      */
 
@@ -56,7 +52,7 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     @Override
     public List<PlayerGameDTO> getAllPlayersDTO(){
         try{
-            return playerRepositoryMongoDB.findAll().stream()
+            return playerRepository.findAll().stream()
                     .map(p -> this.playerDTOfromPlayer(p))
                     .collect(Collectors.toList());
         }catch (RuntimeException e){
@@ -68,7 +64,7 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     @Override
     public List<PlayerGameDTO> getAllPlayersDTORanking(){
         try {
-            return playerRepositoryMongoDB.findAll().stream()
+            return playerRepository.findAll().stream()
                     .map(p -> rankingPlayerDTOfromPlayer(p))
                     .sorted(Comparator.comparing(PlayerGameDTO::getAverageMark).reversed())
                     .collect(Collectors.toList());
@@ -79,16 +75,16 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     }
 
     @Override
-    public PlayerGameDTO savePlayer(PlayerMongoDB newPlayer){
+    public PlayerGameDTO savePlayer(PlayerMySQL newPlayer){
         if(newPlayer.getName().equals("ANONYMOYS")){
-            playerRepositoryMongoDB.save(newPlayer);
+            playerRepository.save(newPlayer);
             return this.playerDTOfromPlayer(newPlayer);
         }else{
-            boolean repitedName = playerRepositoryMongoDB.findAll()
-                    .stream().map(PlayerMongoDB::getName)
+            boolean repitedName = playerRepository.findAll()
+                    .stream().map(PlayerMySQL::getName)
                     .anyMatch((n)-> n.equalsIgnoreCase(newPlayer.getName()));
             if(!repitedName){
-                playerRepositoryMongoDB.save(newPlayer);
+                playerRepository.save(newPlayer);
                 return this.playerDTOfromPlayer(newPlayer);
             }else{
                 log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
@@ -98,15 +94,15 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     }
 
     @Override
-    public PlayerGameDTO updatePlayer(PlayerMongoDB updatedPlayer){
-        boolean existPlayerById = playerRepositoryMongoDB.existsById(updatedPlayer.getId());
+    public PlayerGameDTO updatePlayer(PlayerMySQL updatedPlayer){
+        boolean existPlayerById = playerRepository.existsById(updatedPlayer.getId());
         if(existPlayerById){
             boolean repitedName = false;
-            repitedName = playerRepositoryMongoDB.findAll()
-                    .stream().map(PlayerMongoDB::getName)
+            repitedName = playerRepository.findAll()
+                    .stream().map(PlayerMySQL::getName)
                     .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getName()));
             if(!repitedName){
-                playerRepositoryMongoDB.save(updatedPlayer);
+                playerRepository.save(updatedPlayer);
                 return this.playerDTOfromPlayer(updatedPlayer);
             }else{
                 log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
@@ -120,7 +116,7 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
 
     @Override
     public Optional<PlayerGameDTO> findPlayerDTOById(int id){
-        Optional<PlayerMongoDB> player = playerRepositoryMongoDB.findById(id);
+        Optional<PlayerMySQL> player = playerRepository.findById(id);
         if(player.isPresent()){
             return Optional.of(this.playerDTOfromPlayer(player.get()));
         }else{
@@ -131,8 +127,8 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
 
     @Override
     public List<GameDTO> findGamesByPlayerId(int id){
-        if(playerRepositoryMongoDB.existsById(id)){
-            return gameRepositoryMongoDB.findByPlayerId(id).stream()
+        if(playerRepository.existsById(id)){
+            return gameRepository.findByPlayerId(id).stream()
                     .map(this::gameDTOfromGame)
                     .collect(Collectors.toList());
         }else{
@@ -142,10 +138,10 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     }
 
     @Override
-    public GameDTO saveGame(int id, int mark){
-        Optional<PlayerMongoDB> player = playerRepositoryMongoDB.findById(id);
+    public GameDTO saveGame(int id, int result){
+        Optional<PlayerMySQL> player = playerRepository.findById(id);
         if(player.isPresent()){
-            GameMongoDB savedGame = gameRepositoryMongoDB.save(new GameMongoDB(id, mark, player.get()));
+            GameMySQL savedGame = gameRepository.save(new GameMySQL(result, player.get()));
             return gameDTOfromGame(savedGame);
         }else {
             log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
@@ -155,8 +151,8 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
 
     @Override
     public void deleteGamesByPlayerId(int id){
-        if(playerRepositoryMongoDB.existsById(id)){
-            gameRepositoryMongoDB.deleteByPlayerId(id);
+        if(playerRepository.existsById(id)){
+            gameRepository.deleteByPlayerId(id);
         }else{
             log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
             throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
@@ -193,11 +189,11 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
      *
      */
     public double succesRate(int id){
-        int rounds = gameRepositoryMongoDB.findByPlayerId(id).size();
+        int rounds = gameRepository.findByPlayerId(id).size();
         if(rounds == 0) return 0;
         else {
-            int wonRounds = (int) gameRepositoryMongoDB.findByPlayerId(id).stream()
-                    .map(GameMongoDB::getMark)
+            int wonRounds = (int) gameRepository.findByPlayerId(id).stream()
+                    .map(GameMySQL::getMark)
                     .filter(m -> m >= 7)
                     .count();
             return (double) Math.round(((double) wonRounds / rounds) * 10000) /100;

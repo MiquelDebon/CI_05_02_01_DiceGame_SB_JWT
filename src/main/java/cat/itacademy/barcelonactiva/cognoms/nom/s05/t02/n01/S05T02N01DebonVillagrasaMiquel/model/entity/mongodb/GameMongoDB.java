@@ -1,27 +1,25 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mongodb;
 
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.PlayerMySQL;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collation = "game")
+@Document(collection = "game")
 public class GameMongoDB {
     @Id
-    private int id;
+    private String id;
 
     private int mark;
 
-    private PlayerMongoDB player;
+    private String playerId;
 
-    public GameMongoDB(int mark, PlayerMongoDB player){
+    public GameMongoDB(int mark, String player_id){
         this.mark = mark;
-        this.player = player;
+        this.playerId = player_id;
     }
 }

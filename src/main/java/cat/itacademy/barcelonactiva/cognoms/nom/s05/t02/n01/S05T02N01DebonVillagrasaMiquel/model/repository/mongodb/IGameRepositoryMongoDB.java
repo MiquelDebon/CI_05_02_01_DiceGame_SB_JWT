@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface IGameRepositoryMongoDB extends MongoRepository<GameMongoDB, Integer> {
-    void deleteByPlayerId(int playerId);
-    List<GameMongoDB> findByPlayerId(int id);
+public interface IGameRepositoryMongoDB extends MongoRepository<GameMongoDB, String> {
+    void deleteByPlayerId(String id);
+    List<GameMongoDB> findByPlayerId(String id);
 }

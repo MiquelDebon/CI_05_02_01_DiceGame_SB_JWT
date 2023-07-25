@@ -14,11 +14,14 @@ import java.text.SimpleDateFormat;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collation = "player")
+@Schema(description = "Entity PLayer Information")
+@Document(collection = "player")
 public class PlayerMongoDB {
     @Id
-    private int id;
+    @Schema(defaultValue = "PlayerID", description = "Here goes the player's ID")
+    private String id;
 
+    @Schema(defaultValue = "PlayerName", description = "Here goes the player's name")
     private String name;
 
     private String registerDate;

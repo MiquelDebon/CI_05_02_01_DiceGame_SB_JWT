@@ -4,10 +4,11 @@ import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillag
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.UserNotFoundException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.GameDTO;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.PlayerGameDTO;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mongodb.PlayerGameDTOMongoDB;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mysql.GameDTO;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mysql.PlayerGameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mongodb.PlayerMongoDB;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.PlayerGamerServiceMongoDBImpl;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mongodb.PlayerGamerServiceMongoDBImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,7 +27,8 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 @Slf4j
-//@RestController
+@Tag(name = "IT-Academy - MongoDB")
+@RestController
 @RequestMapping("playersMongoDB")
 public class DiceControllerMongoDB {
     //http://localhost:9005/swagger-ui/index.html
@@ -67,8 +69,8 @@ public class DiceControllerMongoDB {
     )
     @PostMapping("/")
     public ResponseEntity<?> savePlayer(@RequestParam(required = false) String name){
-        PlayerGameDTO returnPlayer;
-        log.info("Controller - Save method");
+        PlayerGameDTOMongoDB returnPlayer;
+        log.info("Controller MongoDB- Save method");
         try{
             if(name == null){
                 returnPlayer = PGService.savePlayer(new PlayerMongoDB("ANONYMOYS"));
@@ -106,7 +108,7 @@ public class DiceControllerMongoDB {
     @PutMapping()
     public ResponseEntity<?> updatePlayer(@RequestBody PlayerMongoDB newPlayer){
         try{
-            PlayerGameDTO updatedDTO = PGService.updatePlayer(newPlayer);
+            PlayerGameDTOMongoDB updatedDTO = PGService.updatePlayer(newPlayer);
             return new ResponseEntity<>(updatedDTO, HttpStatus.OK);
         }catch (UserNotFoundException | DuplicateUserNameException e){
             throw e;
@@ -143,7 +145,7 @@ public class DiceControllerMongoDB {
             }
     )
     @PostMapping("/{id}/games")
-    public ResponseEntity<?> playGame(@PathVariable int id){
+    public ResponseEntity<?> playGame(@PathVariable String id){
         int gameResult = LogicGame.PLAY();
         try{
             GameDTO gameDTO = PGService.saveGame(id, gameResult);
@@ -182,7 +184,7 @@ public class DiceControllerMongoDB {
     @GetMapping()
     public ResponseEntity<?> getAllPlayers(){
         try{
-            List<PlayerGameDTO> returnList = PGService.getAllPlayersDTO();
+            List<PlayerGameDTOMongoDB> returnList = PGService.getAllPlayersDTO();
             return new ResponseEntity<>(returnList, HttpStatus.OK);
         }catch (EmptyDataBaseException e){
             throw e;
@@ -218,7 +220,7 @@ public class DiceControllerMongoDB {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<?> getGamePlayers(@PathVariable int id){
+    public ResponseEntity<?> getGamePlayers(@PathVariable String id){
         try{
             List<GameDTO> returnList =  PGService.findGamesByPlayerId(id);
             return new ResponseEntity<>(returnList, HttpStatus.OK);
@@ -252,9 +254,9 @@ public class DiceControllerMongoDB {
             }
     )
     @DeleteMapping("/{id}/games")
-    public ResponseEntity<?> deletePlayerGames(@PathVariable int id){
+    public ResponseEntity<?> deletePlayerGames(@PathVariable String id){
         try{
-            PlayerGameDTO player = PGService.findPlayerDTOById(id).get();
+            PlayerGameDTOMongoDB player = PGService.findPlayerDTOById(id).get();
             PGService.deleteGamesByPlayerId(id);
             return new ResponseEntity<>(player, HttpStatus.OK);
         }catch (UserNotFoundException e){
@@ -302,7 +304,7 @@ public class DiceControllerMongoDB {
     @GetMapping("/ranking")
     public ResponseEntity<?> getRankingPlayers(){
         try{
-            List<PlayerGameDTO> returnList = PGService.getAllPlayersDTORanking();
+            List<PlayerGameDTOMongoDB> returnList = PGService.getAllPlayersDTORanking();
             return new ResponseEntity<>(returnList, HttpStatus.OK);
         }catch (EmptyDataBaseException e){
             throw e;
@@ -338,7 +340,7 @@ public class DiceControllerMongoDB {
     @GetMapping("/ranking/loser")
     public ResponseEntity<?> getWorstPlayer(){
         try{
-            Optional<PlayerGameDTO> player = PGService.getWorstPlayer();
+            Optional<PlayerGameDTOMongoDB> player = PGService.getWorstPlayer();
             return new ResponseEntity<>(player, HttpStatus.OK);
         }catch (EmptyDataBaseException e){
             throw e;
@@ -375,7 +377,7 @@ public class DiceControllerMongoDB {
         @GetMapping("/ranking/winner")
     public ResponseEntity<?> getBestPlayer(){
         try{
-            Optional<PlayerGameDTO> player =  PGService.getBestPlayer();
+            Optional<PlayerGameDTOMongoDB> player =  PGService.getBestPlayer();
             return new ResponseEntity<>(player, HttpStatus.OK);
         }catch (EmptyDataBaseException e){
             throw e;

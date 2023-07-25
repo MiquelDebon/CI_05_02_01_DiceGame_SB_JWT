@@ -26,7 +26,6 @@ public class PlayerMySQL {
     @Schema(defaultValue = "PlayerName", description = "Here goes the player's name")
     private String name;
 
-    @Schema(hidden = true)
     @Column(nullable = false)
     private String registerDate;
 

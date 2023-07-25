@@ -12,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name="Game")
 public class GameMySQL {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Entity PLayer Information")
+@Table(name="Player")
 public class PlayerMySQL {
     @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)

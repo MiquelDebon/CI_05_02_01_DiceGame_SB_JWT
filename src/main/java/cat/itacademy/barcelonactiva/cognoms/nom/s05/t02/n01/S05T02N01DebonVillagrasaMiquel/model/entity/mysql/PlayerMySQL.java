@@ -1,4 +1,4 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Entity PLayer Information")
-public class Player {
+public class PlayerMySQL {
     @Id()
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(defaultValue = "PlayerID", description = "Here goes the player's ID")
@@ -30,7 +30,7 @@ public class Player {
     private String registerDate;
 
 
-    public Player(Integer id, String name){
+    public PlayerMySQL(Integer id, String name){
         this.id = id;
         this.name = name;
         registerDate = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")

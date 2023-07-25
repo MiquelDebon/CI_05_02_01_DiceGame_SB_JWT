@@ -1,15 +1,15 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services;
 
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.EmptyDataBaseException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.ExceptionsMessage;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler.UserNotFoundException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.DuplicateUserNameException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.GameDTO;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Game;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IGameRepository;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IplayerRepository;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.GameDTO;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.PlayerGameDTO;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.GameMySQL;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.PlayerMySQL;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.UserNotFoundException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql.IplayerRepositoryMySQL;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql.IGameRepositoryMySQL;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-//@AllArgsConstructor
-public class PlayerGamerServiceImpl implements IPlayerGamerService{
+public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     @Autowired
-    private IGameRepository gameRepository;
+    private IGameRepositoryMySQL gameRepository;
     @Autowired
-    private IplayerRepository playerRepository;
+    private IplayerRepositoryMySQL playerRepository;
 
 
     /**
@@ -33,13 +32,13 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
      *
      */
 
-    public PlayerGameDTO playerDTOfromPlayer(Player player){
+    public PlayerGameDTO playerDTOfromPlayer(PlayerMySQL player){
         return new PlayerGameDTO(player.getId(), player.getName(), this.averageMarkPLayer(player.getId()));
     }
-    public PlayerGameDTO rankingPlayerDTOfromPlayer(Player player){
+    public PlayerGameDTO rankingPlayerDTOfromPlayer(PlayerMySQL player){
         return new PlayerGameDTO(player.getId(), player.getName(), this.succesRate(player.getId()));
     }
-    public GameDTO gameDTOfromGame(Game game){
+    public GameDTO gameDTOfromGame(GameMySQL game){
         return new GameDTO(game.getMark());
     }
 
@@ -57,8 +56,8 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
                     .map(p -> this.playerDTOfromPlayer(p))
                     .collect(Collectors.toList());
         }catch (RuntimeException e){
-            log.error(ExceptionsMessage.EMPTY_DATABASE);
-            throw new EmptyDataBaseException(ExceptionsMessage.EMPTY_DATABASE);
+            log.error(BaseDescriptionException.EMPTY_DATABASE);
+            throw new EmptyDataBaseException(BaseDescriptionException.EMPTY_DATABASE);
         }
     }
 
@@ -70,55 +69,59 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
                     .sorted(Comparator.comparing(PlayerGameDTO::getAverageMark).reversed())
                     .collect(Collectors.toList());
         }catch (RuntimeException e){
-            log.error(ExceptionsMessage.EMPTY_DATABASE);
-            throw new EmptyDataBaseException(ExceptionsMessage.EMPTY_DATABASE);
+            log.error(BaseDescriptionException.EMPTY_DATABASE);
+            throw new EmptyDataBaseException(BaseDescriptionException.EMPTY_DATABASE);
         }
     }
 
     @Override
-    public PlayerGameDTO savePlayer(Player newPlayer){
+    public PlayerGameDTO savePlayer(PlayerMySQL newPlayer){
         if(newPlayer.getName().equals("ANONYMOYS")){
             playerRepository.save(newPlayer);
             return this.playerDTOfromPlayer(newPlayer);
         }else{
             boolean repitedName = playerRepository.findAll()
-                    .stream().map(Player::getName)
+                    .stream().map(PlayerMySQL::getName)
                     .anyMatch((n)-> n.equalsIgnoreCase(newPlayer.getName()));
             if(!repitedName){
                 playerRepository.save(newPlayer);
                 return this.playerDTOfromPlayer(newPlayer);
             }else{
-                log.error(ExceptionsMessage.DUPLICATED_USER_NAME);
-                throw new DuplicateUserNameException(ExceptionsMessage.DUPLICATED_USER_NAME);
+                log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
+                throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);
             }
         }
-
-
     }
 
     @Override
-    public PlayerGameDTO updatePlayer(Player updatedPlayer){
-        boolean repitedName = false;
-        repitedName = playerRepository.findAll()
-                .stream().map(Player::getName)
-                .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getName()));
-        if(!repitedName){
-            playerRepository.save(updatedPlayer);
-            return this.playerDTOfromPlayer(updatedPlayer);
+    public PlayerGameDTO updatePlayer(PlayerMySQL updatedPlayer){
+        boolean existPlayerById = playerRepository.existsById(updatedPlayer.getId());
+        if(existPlayerById){
+            boolean repitedName = false;
+            repitedName = playerRepository.findAll()
+                    .stream().map(PlayerMySQL::getName)
+                    .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getName()));
+            if(!repitedName){
+                playerRepository.save(updatedPlayer);
+                return this.playerDTOfromPlayer(updatedPlayer);
+            }else{
+                log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
+                throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);
+            }
         }else{
-            log.error(ExceptionsMessage.DUPLICATED_USER_NAME);
-            throw new DuplicateUserNameException(ExceptionsMessage.DUPLICATED_USER_NAME);
+            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
         }
     }
 
     @Override
     public Optional<PlayerGameDTO> findPlayerDTOById(int id){
-        Optional<Player> player = playerRepository.findById(id);
+        Optional<PlayerMySQL> player = playerRepository.findById(id);
         if(player.isPresent()){
             return Optional.of(this.playerDTOfromPlayer(player.get()));
         }else{
-            log.error(ExceptionsMessage.NO_USER_BY_THIS_ID);
-            throw new UserNotFoundException(ExceptionsMessage.NO_USER_BY_THIS_ID);
+            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
         }
     }
 
@@ -129,20 +132,20 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
                     .map(this::gameDTOfromGame)
                     .collect(Collectors.toList());
         }else{
-            log.error(ExceptionsMessage.NO_USER_BY_THIS_ID);
-            throw new UserNotFoundException(ExceptionsMessage.NO_USER_BY_THIS_ID);
+            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
         }
     }
 
     @Override
     public GameDTO saveGame(int id, int result){
-        Optional<Player> player = playerRepository.findById(id);
+        Optional<PlayerMySQL> player = playerRepository.findById(id);
         if(player.isPresent()){
-            Game savedGame = gameRepository.save(new Game(result, player.get()));
+            GameMySQL savedGame = gameRepository.save(new GameMySQL(result, player.get()));
             return gameDTOfromGame(savedGame);
         }else {
-            log.error(ExceptionsMessage.NO_USER_BY_THIS_ID);
-            throw new UserNotFoundException(ExceptionsMessage.NO_USER_BY_THIS_ID);
+            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
         }
     }
 
@@ -151,8 +154,8 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
         if(playerRepository.existsById(id)){
             gameRepository.deleteByPlayerId(id);
         }else{
-            log.error(ExceptionsMessage.NO_USER_BY_THIS_ID);
-            throw new UserNotFoundException(ExceptionsMessage.NO_USER_BY_THIS_ID);
+            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
+            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
         }
     }
 
@@ -190,7 +193,7 @@ public class PlayerGamerServiceImpl implements IPlayerGamerService{
         if(rounds == 0) return 0;
         else {
             int wonRounds = (int) gameRepository.findByPlayerId(id).stream()
-                    .map(Game::getMark)
+                    .map(GameMySQL::getMark)
                     .filter(m -> m >= 7)
                     .count();
             return (double) Math.round(((double) wonRounds / rounds) * 10000) /100;

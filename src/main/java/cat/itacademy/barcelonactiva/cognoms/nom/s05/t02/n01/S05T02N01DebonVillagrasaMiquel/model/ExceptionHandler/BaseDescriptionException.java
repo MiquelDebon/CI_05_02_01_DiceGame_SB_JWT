@@ -1,6 +1,6 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.ExceptionHandler;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler;
 
-public class ExceptionsMessage {
+public class BaseDescriptionException {
     public static final String NO_USER_BY_THIS_ID = "There is no such player with this ID";
     public static final String DUPLICATED_USER_NAME = "Duplicated name - This is already a player winth this name in the date base, please use another name";
     public static final String EMPTY_DATABASE = "Empty database";

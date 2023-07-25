@@ -1,4 +1,4 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -12,7 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Game {
+public class GameMySQL {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true)
@@ -24,9 +24,9 @@ public class Game {
     @JoinColumn(name = "player_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore  //is used to ignore the logical property used in serialization and deserialization
-    private Player player;
+    private PlayerMySQL player;
 
-    public Game(int mark, Player player){
+    public GameMySQL(int mark, PlayerMySQL player){
         id = null;
         this.mark = mark;
         this.player = player;

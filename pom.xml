@@ -88,6 +88,12 @@
 			<version>8.0.0.Final</version>
 		</dependency>
 
+		<!--MongoDB		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+
 		<!-- SECURITY   -->
 <!--		&lt;!&ndash; https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security &ndash;&gt;-->
 <!--		<dependency>-->

@@ -1,13 +1,14 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.services;
 
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.GameDTO;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.dto.PlayerGameDTO;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Game;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.entity.Player;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IGameRepository;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository.IplayerRepository;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.GameDTO;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.PlayerGameDTO;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.GameMySQL;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.PlayerMySQL;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql.IGameRepositoryMySQL;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql.IplayerRepositoryMySQL;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.PlayerGamerServiceMySQLImpl;
 import org.junit.Test;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
@@ -26,27 +28,35 @@ import static org.mockito.Mockito.*;
 public class ServicesTest {
 
     @Autowired
-    private PlayerGamerServiceImpl service;
+    private PlayerGamerServiceMySQLImpl serviceMySQL;
     @MockBean
-    private IGameRepository gameRepository;
+    private IGameRepositoryMySQL gameRepository;
     @MockBean
-    private IplayerRepository playerRepository;
+    private IplayerRepositoryMySQL playerRepository;
 
     @Test
-    public void getPlayer(){
+    public void getPlayers(){
         when(playerRepository.findAll()).thenReturn(
-                Stream.of(new Player(1, "testName1"), new Player(2, "testName2"))
+                Stream.of(new PlayerMySQL(1, "testName1"), new PlayerMySQL(2, "testName2"))
                         .collect(Collectors.toList()));
-        assertEquals(2, service.getAllPlayersDTO().size());
-        assertEquals(2, service.getAllPlayersDTORanking().size());
-        assertEquals("testName1",service.getAllPlayersDTORanking().get(0).getName());
+        assertEquals(2, serviceMySQL.getAllPlayersDTO().size());
+        assertEquals(2, serviceMySQL.getAllPlayersDTORanking().size());
+        assertEquals("testName1", serviceMySQL.getAllPlayersDTORanking().get(0).getName());
+    }
+
+    @Test
+    public void getPlayersException(){
+        when(playerRepository.findAll()).thenReturn(null);
+        assertThrows(EmptyDataBaseException.class, () -> {
+            serviceMySQL.getAllPlayersDTO();
+        });
     }
 
     @Test
     public void getOnePlayer(){
         when(playerRepository.findById(1)).thenReturn(
-                Optional.of(new Player(1, "testName1")));
-//        assertEquals("testName1", service.findPlayerById(1).getName());
+                Optional.of(new PlayerMySQL(1, "testName1")));
+        assertEquals("testName1", serviceMySQL.findPlayerDTOById(1).get().getName());
     }
 
     @Test
@@ -63,31 +73,31 @@ public class ServicesTest {
 
     @Test
     public void savePLayer(){
-        Player playerTest = new Player(1, "testPlayer");
-        PlayerGameDTO returnDTO = service.playerDTOfromPlayer(playerTest);
+        PlayerMySQL playerTest = new PlayerMySQL(1, "testPlayer");
+        PlayerGameDTO returnDTO = serviceMySQL.playerDTOfromPlayer(playerTest);
         when(playerRepository.save(playerTest)).thenReturn(playerTest);
-        assertEquals(returnDTO, service.savePlayer(playerTest));
+        assertEquals(returnDTO, serviceMySQL.savePlayer(playerTest));
     }
 
     @Test
     public void saveGame(){
-        Player playerTest = new Player(1, "testPlayer");
+        PlayerMySQL playerTest = new PlayerMySQL(1, "testPlayer");
         int mark = 2;
         int id = 1;
-        Game gameTest = new Game(mark, playerTest);
-        GameDTO returnGameDTO = service.gameDTOfromGame(gameTest);
+        GameMySQL gameTest = new GameMySQL(mark, playerTest);
+        GameDTO returnGameDTO = serviceMySQL.gameDTOfromGame(gameTest);
         when(gameRepository.save(gameTest)).thenReturn(gameTest);
-        assertEquals(returnGameDTO, service.saveGame(id, mark));
+        assertEquals(returnGameDTO, serviceMySQL.saveGame(id, mark));
     }
 
     @Test
     public void deleteGamesByPlayerIdold(){
         Integer id = 1;
-        Player playerTest = new Player(id, "testPlayer");
+        PlayerMySQL playerTest = new PlayerMySQL(id, "testPlayer");
         for(int mark=1; mark<5; mark++){
-            Game gameTest = new Game(mark, playerTest);
+            GameMySQL gameTest = new GameMySQL(mark, playerTest);
             when(gameRepository.save(gameTest)).thenReturn(gameTest);
-            service.saveGame(id, mark);
+            serviceMySQL.saveGame(id, mark);
         }
 //        when(gameRepository.findByPlayerId(id)).thenReturn(5);
 //
@@ -99,7 +109,7 @@ public class ServicesTest {
     @Test
     public void deleteGamesByPlayerId(){
         Integer id = 1;
-        service.deleteGamesByPlayerId(id);
+        serviceMySQL.deleteGamesByPlayerId(id);
         verify(gameRepository, times(1)).deleteByPlayerId(id);
     }
 

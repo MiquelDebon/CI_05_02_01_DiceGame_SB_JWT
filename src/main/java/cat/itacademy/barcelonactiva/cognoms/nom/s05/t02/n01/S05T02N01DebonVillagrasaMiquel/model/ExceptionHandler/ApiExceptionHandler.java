@@ -30,6 +30,13 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(mapError, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(DuplicateUserEmailException.class)
+    public ResponseEntity<?> duplicatedEmail(DuplicateUserEmailException ex){
+        Map<String, String> mapError = new HashMap<>();
+        mapError.put("ErrorMessage", ex.getMessage());
+        return new ResponseEntity<>(mapError, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(EmptyDataBaseException.class)
     public ResponseEntity emptyDatabase(EmptyDataBaseException ex){
         Map<String, String> mapError = new HashMap<>();

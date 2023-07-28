@@ -76,7 +76,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
 
     @Override
     public PlayerGameDTO savePlayer(PlayerMySQL newPlayer){
-        if(newPlayer.getName().equals("ANONYMOYS")){
+        if(newPlayer.getName().equals("ANONYMOUS")){
             playerRepository.save(newPlayer);
             return this.playerDTOfromPlayer(newPlayer);
         }else{

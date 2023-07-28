@@ -20,16 +20,19 @@ The software must be able to list all the players in the system, the success per
 
 The software must respect the main design patterns.
 
-**URL's**
+**URL's** 
 
-    - POST:   /players -> Create a player.
-    - PUT     /players -> change the name of the player.
-    - POST    /players/{id}/games/ -> A specific player rolls the dice.
-    - DELETE  /players/{id}/games -> deletes the player's rolls.
-    - GET     /players/ -> returns the list of all the players in the system with their average success rate.
-    - GET     /players/{id}/games -> returns the list of games for a player.
-    - GET     /players/ranking -> returns the average ranking of all players in the system. That is, the average percentage of successes.
-    - GET     /players/ranking/loser -> returns the player with the worst success rate.
+    MYSQL:    /players
+    MongoDB   /playersMongoDB
+
+    - POST:   /players                -> Create a player.
+    - PUT     /players                -> change the name of the player.
+    - POST    /players/{id}/games/    -> A specific player rolls the dice.
+    - DELETE  /players/{id}/games     -> deletes the player's rolls.
+    - GET     /players/               -> returns the list of all the players in the system with their average success rate.
+    - GET     /players/{id}/games     -> returns the list of games for a player.
+    - GET     /players/ranking        -> returns the average ranking of all players in the system. That is, the average percentage of successes.
+    - GET     /players/ranking/loser  -> returns the player with the worst success rate.
     - GET     /players/ranking/winner -> returns the player with the worst success rate.
 
 ### References:
@@ -46,6 +49,7 @@ The software must respect the main design patterns.
 - JWT - SpringBoot Security
   - [Bezkoder - Spring Boot Token based Authentication with Spring Security & JWT](https://www.bezkoder.com/spring-boot-jwt-authentication/)
   - [Amigoscode - Spring Boot 3 + Spring Security 6 - JWT Authentication and Authorisation [NEW] [2023]](https://www.youtube.com/watch?v=KxqlJblhzfI&t=1040s)
+  - [Bezkoder - Spring Boot 2 JWT Authentication with Spring Security](https://www.bezkoder.com/spring-boot-jwt-mysql-spring-security-architecture/)
 - More Swagger
   - [Swagger 3 annotations in Spring Boot](https://www.bezkoder.com/swagger-3-annotations/#Swagger_3_ApiResponses_and_ApiResponse_annotation)
   - [Spring Boot + Swagger 3 example (with OpenAPI 3) - Advanced](https://www.bezkoder.com/spring-boot-swagger-3/)

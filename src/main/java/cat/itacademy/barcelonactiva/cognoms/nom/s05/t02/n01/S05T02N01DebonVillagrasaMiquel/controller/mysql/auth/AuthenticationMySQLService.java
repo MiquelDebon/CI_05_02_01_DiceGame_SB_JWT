@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthenticationMySQLService {
 
     private final IplayerRepositoryMySQL repository;
     private final PasswordEncoder passwordEncoder;

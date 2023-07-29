@@ -37,13 +37,6 @@ public class DiceControllerMySQL {
     private PlayerGamerServiceMySQLImpl PGService;
 
 
-    /**
-     * ⚠️TODO
-     *      Spring Security
-     *      Add Hexagonal
-     *      Make it reactive
-     */
-
 
     /**
      *  🟢POST Crea un jugador/a.

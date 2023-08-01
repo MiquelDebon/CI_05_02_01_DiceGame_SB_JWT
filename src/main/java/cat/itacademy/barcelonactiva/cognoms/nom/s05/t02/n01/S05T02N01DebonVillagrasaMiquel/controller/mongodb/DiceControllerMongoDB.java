@@ -295,7 +295,7 @@ public class DiceControllerMongoDB {
                             content = @Content),
                     @ApiResponse(
                             responseCode = "500",
-                            description = BaseDescriptionException.INTERNAL_ERROR,
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
             }
 
@@ -332,7 +332,7 @@ public class DiceControllerMongoDB {
                             content = @Content),
                     @ApiResponse(
                             responseCode = "500",
-                            description = BaseDescriptionException.INTERNAL_ERROR,
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
             }
     )
@@ -368,7 +368,7 @@ public class DiceControllerMongoDB {
                             content = @Content),
                     @ApiResponse(
                             responseCode = "500",
-                            description = BaseDescriptionException.INTERNAL_ERROR,
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
 
             }
@@ -400,7 +400,7 @@ public class DiceControllerMongoDB {
                             content = @Content),
                     @ApiResponse(
                             responseCode = "500",
-                            description = BaseDescriptionException.INTERNAL_ERROR,
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
             }
     )

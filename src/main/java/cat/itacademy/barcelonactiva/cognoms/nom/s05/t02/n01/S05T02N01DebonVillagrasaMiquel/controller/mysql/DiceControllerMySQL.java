@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,10 +57,16 @@ public class DiceControllerMySQL {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request buddy",
-                            content = @Content)
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    )
             }
     )
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<?> savePlayer(@RequestParam(required = false) String name){
         PlayerGameDTO returnPlayer;
         log.info("Controller - Save method");
@@ -96,7 +101,12 @@ public class DiceControllerMySQL {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request buddy",
-                            content = @Content)
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    )
             }
     )
     @PutMapping()
@@ -135,10 +145,17 @@ public class DiceControllerMySQL {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request buddy",
-                            content = @Content)
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    )
             }
     )
     @PostMapping("/{id}/games")
+    @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
+    //This Annotation allows only the authorised user to use this method or an Admin user
     public ResponseEntity<?> playGame(@PathVariable int id){
         try{
             GameDTO gameDTO = PGService.saveGame(id);
@@ -149,6 +166,7 @@ public class DiceControllerMySQL {
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
     /**
@@ -168,6 +186,11 @@ public class DiceControllerMySQL {
                             responseCode = "204",
                             description = BaseDescriptionException.EMPTY_DATABASE,
                             content = @Content),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal error",
@@ -210,7 +233,12 @@ public class DiceControllerMySQL {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request buddy",
-                            content = @Content)
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    )
             }
     )
     @GetMapping("/{id}")
@@ -245,7 +273,12 @@ public class DiceControllerMySQL {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request buddy",
-                            content = @Content)
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    )
             }
     )
     @DeleteMapping("/{id}/games")
@@ -290,8 +323,13 @@ public class DiceControllerMySQL {
                             description = "Bad request buddy",
                             content = @Content),
                     @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
-                            description = BaseDescriptionException.INTERNAL_ERROR,
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
             }
 
@@ -327,8 +365,13 @@ public class DiceControllerMySQL {
                             description = BaseDescriptionException.EMPTY_DATABASE,
                             content = @Content),
                     @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
-                            description = BaseDescriptionException.INTERNAL_ERROR,
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
             }
     )
@@ -363,8 +406,13 @@ public class DiceControllerMySQL {
                             description = BaseDescriptionException.EMPTY_DATABASE,
                             content = @Content),
                     @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
-                            description = BaseDescriptionException.INTERNAL_ERROR,
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
 
             }
@@ -388,15 +436,19 @@ public class DiceControllerMySQL {
                     @ApiResponse(
                             responseCode = "200",
                             description = "Successful response",
-                            content = @Content(schema = @Schema())
-                    ),
+                            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
                     @ApiResponse(
                             responseCode = "204",
                             description = BaseDescriptionException.EMPTY_DATABASE,
                             content = @Content),
                     @ApiResponse(
+                            responseCode = "403",
+                            description = BaseDescriptionException.E403_DESCRIPTION,
+                            content = @Content),
+                    @ApiResponse(
                             responseCode = "500",
-                            description = BaseDescriptionException.INTERNAL_ERROR,
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
             }
     )
@@ -423,6 +475,8 @@ public class DiceControllerMySQL {
     public ResponseEntity<?> userEndPoint(){
         return new ResponseEntity<>("great user or admin", HttpStatus.OK);
     }
+
+    //@PreAuthorize("hasAuthority('USER')")
 
 
 

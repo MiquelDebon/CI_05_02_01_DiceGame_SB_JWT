@@ -3,7 +3,11 @@ package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVilla
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.AuthenticationRequest;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.AuthenticationResponse;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.RegisterRequest;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mysql.AuthenticationMySQLService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +28,20 @@ public class AuthenticationMySQLController {
 
     private final AuthenticationMySQLService service;
 
+    @Operation(
+            summary = "Register endpoint",
+            description = "Description: This method is to register a new player",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = BaseDescriptionException.EMPTY_DATABASE,
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
+                            content = @Content)
+            }
+    )
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
@@ -35,6 +53,21 @@ public class AuthenticationMySQLController {
         }
     }
 
+
+    @Operation(
+            summary = "Authentication endpoint",
+            description = "Description: This method is to authenticate a new player",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = BaseDescriptionException.EMPTY_DATABASE,
+                            content = @Content),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = BaseDescriptionException.E500_INTERNAL_ERROR,
+                            content = @Content)
+            }
+    )
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request

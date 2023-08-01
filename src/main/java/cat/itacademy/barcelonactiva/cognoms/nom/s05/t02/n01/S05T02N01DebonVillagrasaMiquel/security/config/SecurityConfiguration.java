@@ -4,7 +4,6 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,6 +24,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity  //Allow to use @PreAuthorize
 public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -37,8 +38,8 @@ public class SecurityConfiguration {
                 .disable()
                 .authorizeHttpRequests()
                 .requestMatchers(
-                        "api/mysql/auth",
-                                "api/mongodb/auth",
+                        "api/mysql/auth/**",
+                                "api/mongodb/auth/**",
                                 // -- Swagger UI v3 (OpenAPI)
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**")
@@ -54,9 +55,12 @@ public class SecurityConfiguration {
         return http.build();
     }
 
+    /**
+     * Swagger configuration
+     */
+
     @Value("${miqueldebon.openapi.dev-url}")
     private String devUrl;
-
     @Value("${miqueldebon.openapi.prod-url}")
     private String prodUrl;
 

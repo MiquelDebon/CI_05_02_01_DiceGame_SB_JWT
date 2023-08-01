@@ -1,5 +1,6 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mysql;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.LogicGame;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
@@ -138,7 +139,8 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     }
 
     @Override
-    public GameDTO saveGame(int id, int result){
+    public GameDTO saveGame(int id){
+        int result = LogicGame.PLAY();
         Optional<PlayerMySQL> player = playerRepository.findById(id);
         if(player.isPresent()){
             GameMySQL savedGame = gameRepository.save(new GameMySQL(result, player.get()));

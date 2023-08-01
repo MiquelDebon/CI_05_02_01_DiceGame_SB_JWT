@@ -1,6 +1,5 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.mongodb;
 
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.LogicGame;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
@@ -147,9 +146,8 @@ public class DiceControllerMongoDB {
     )
     @PostMapping("/{id}/games")
     public ResponseEntity<?> playGame(@PathVariable String id){
-        int gameResult = LogicGame.PLAY();
         try{
-            GameDTO gameDTO = PGService.saveGame(id, gameResult);
+            GameDTO gameDTO = PGService.saveGame(id);
             return new ResponseEntity<>(gameDTO, HttpStatus.OK);
         }catch (UserNotFoundException e){
             throw e;

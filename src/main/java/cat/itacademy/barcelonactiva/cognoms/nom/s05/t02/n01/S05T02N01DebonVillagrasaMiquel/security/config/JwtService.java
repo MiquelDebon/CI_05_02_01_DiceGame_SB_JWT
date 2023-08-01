@@ -32,7 +32,7 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    private Key getSignInKey(){
+    private Key  getSignInKey(){
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -49,6 +49,10 @@ public class JwtService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    /**
+     * Support methods
+     */
 
     public boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUsername(token);

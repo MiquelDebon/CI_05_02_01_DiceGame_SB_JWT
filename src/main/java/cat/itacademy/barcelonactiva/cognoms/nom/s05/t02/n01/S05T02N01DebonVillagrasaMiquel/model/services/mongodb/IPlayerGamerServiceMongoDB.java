@@ -16,7 +16,7 @@ public interface IPlayerGamerServiceMongoDB {
     List<PlayerGameDTOMongoDB> getAllPlayersDTORanking();
     PlayerGameDTOMongoDB savePlayer(PlayerMongoDB player);
     PlayerGameDTOMongoDB updatePlayer(PlayerMongoDB player);
-    GameDTO saveGame(String id, int result);
+    GameDTO saveGame(String id);
     void deleteGamesByPlayerId(String id);
     Optional<PlayerGameDTOMongoDB> findPlayerDTOById(String id);
     List<GameDTO> findGamesByPlayerId(String id) throws UserNotFoundException;

@@ -1,4 +1,4 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.mysql.auth;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mysql;
 
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.AuthenticationRequest;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.AuthenticationResponse;
@@ -33,15 +33,13 @@ public class AuthenticationMySQLService {
             checkDuplicatedEmail(request.getEmail());
             checkDuplicatedName(request.getFirstname());
 
-            var user = PlayerMySQL.builder()
-                    .name(request.getFirstname())
-                    .surname(request.getLastname())
-                    .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .role(Role.USER)
-                    .registerDate(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
-                            .format(new java.util.Date()))
-                    .build();
+            PlayerMySQL user;
+            if(!request.getEmail().contains("@admin.com")){
+                user = buildPlayer(request, Role.USER);
+                repository.save(user);
+            }else{
+                user = buildPlayer(request, Role.ADMIN);
+            }
             repository.save(user);
 
             var jwtToken = jwtService.generateToken(user);
@@ -53,7 +51,6 @@ public class AuthenticationMySQLService {
         }catch (DuplicateUserNameException e){
             throw new DuplicateUserEmailException("Error duplicated name");
         }
-
     }
 
 
@@ -91,6 +88,18 @@ public class AuthenticationMySQLService {
         ){
             throw new DuplicateUserNameException("Duplicated name");
         }
+    }
+
+    public PlayerMySQL buildPlayer(RegisterRequest request, Role role){
+        return PlayerMySQL.builder()
+                .name(request.getFirstname())
+                .surname(request.getLastname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(role)
+                .registerDate(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+                        .format(new java.util.Date()))
+                .build();
     }
 
 

@@ -1,6 +1,5 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.mysql;
 
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.LogicGame;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
@@ -17,9 +16,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -139,9 +140,8 @@ public class DiceControllerMySQL {
     )
     @PostMapping("/{id}/games")
     public ResponseEntity<?> playGame(@PathVariable int id){
-        int gameResult = LogicGame.PLAY();
         try{
-            GameDTO gameDTO = PGService.saveGame(id, gameResult);
+            GameDTO gameDTO = PGService.saveGame(id);
             return new ResponseEntity<>(gameDTO, HttpStatus.OK);
         }catch (UserNotFoundException e){
             throw e;
@@ -411,6 +411,18 @@ public class DiceControllerMySQL {
         }
     }
 
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> adminEndPoint(){
+        return new ResponseEntity<>("great admin", HttpStatus.OK);
+    }
+
+    @GetMapping("/user")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+    public ResponseEntity<?> userEndPoint(){
+        return new ResponseEntity<>("great user or admin", HttpStatus.OK);
+    }
 
 
 

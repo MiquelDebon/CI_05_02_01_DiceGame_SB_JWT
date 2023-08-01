@@ -15,7 +15,7 @@ public interface IPlayerGamerServiceMySQL {
     List<PlayerGameDTO> getAllPlayersDTORanking();
     PlayerGameDTO savePlayer(PlayerMySQL player);
     PlayerGameDTO updatePlayer(PlayerMySQL player);
-    GameDTO saveGame(int id, int result);
+    GameDTO saveGame(int id);
     void deleteGamesByPlayerId(int id);
     Optional<PlayerGameDTO> findPlayerDTOById(int id);
     List<GameDTO> findGamesByPlayerId(int id) throws UserNotFoundException;

@@ -1,5 +1,6 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.mysql;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.RegisterRequest;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,11 +111,14 @@ public class DiceControllerMySQL {
                     )
             }
     )
-    @PutMapping()
-    public ResponseEntity<?> updatePlayer(@RequestBody PlayerMySQL newPlayer){
+    @PutMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
+//    public ResponseEntity<?> updatePlayer(@PathVariable int id, @RequestBody RegisterRequest request){
+    public ResponseEntity<?> updatePlayer(@PathVariable int id, @RequestBody PlayerMySQL request){
         try{
-            PlayerGameDTO updatedDTO = PGService.updatePlayer(newPlayer);
+            PlayerGameDTO updatedDTO = PGService.updatePlayer(request);
             return new ResponseEntity<>(updatedDTO, HttpStatus.OK);
+
         }catch (UserNotFoundException | DuplicateUserNameException e){
             throw e;
         }catch (Exception e){
@@ -198,6 +203,7 @@ public class DiceControllerMySQL {
             }
     )
     @GetMapping()
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<?> getAllPlayers(){
         try{
             List<PlayerGameDTO> returnList = PGService.getAllPlayersDTO();
@@ -242,6 +248,7 @@ public class DiceControllerMySQL {
             }
     )
     @GetMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
     public ResponseEntity<?> getGamePlayers(@PathVariable int id){
         try{
             List<GameDTO> returnList =  PGService.findGamesByPlayerId(id);
@@ -282,10 +289,11 @@ public class DiceControllerMySQL {
             }
     )
     @DeleteMapping("/{id}/games")
+    @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
     public ResponseEntity<?> deletePlayerGames(@PathVariable int id){
         try{
-            PlayerGameDTO player = PGService.findPlayerDTOById(id).get();
             PGService.deleteGamesByPlayerId(id);
+            PlayerGameDTO player = PGService.findPlayerDTOById(id).get();
             return new ResponseEntity<>(player, HttpStatus.OK);
         }catch (UserNotFoundException e){
             throw e;
@@ -335,6 +343,7 @@ public class DiceControllerMySQL {
 
     )
     @GetMapping("/ranking")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<?> getRankingPlayers(){
         try{
             List<PlayerGameDTO> returnList = PGService.getAllPlayersDTORanking();
@@ -376,6 +385,7 @@ public class DiceControllerMySQL {
             }
     )
     @GetMapping("/ranking/loser")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<?> getWorstPlayer(){
         try{
             Optional<PlayerGameDTO> player = PGService.getWorstPlayer();
@@ -414,10 +424,10 @@ public class DiceControllerMySQL {
                             responseCode = "500",
                             description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
-
             }
     )
     @GetMapping("/ranking/winner")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<?> getBestPlayer(){
         try{
             Optional<PlayerGameDTO> player =  PGService.getBestPlayer();
@@ -453,6 +463,7 @@ public class DiceControllerMySQL {
             }
     )
     @GetMapping("/totalAverageMark")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<?> getAverageTotalMark(){
         OptionalDouble averageMark = PGService.averageTotalMarks();
         if(averageMark.isPresent()){
@@ -463,20 +474,6 @@ public class DiceControllerMySQL {
         }
     }
 
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> adminEndPoint(){
-        return new ResponseEntity<>("great admin", HttpStatus.OK);
-    }
-
-    @GetMapping("/user")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
-    public ResponseEntity<?> userEndPoint(){
-        return new ResponseEntity<>("great user or admin", HttpStatus.OK);
-    }
-
-    //@PreAuthorize("hasAuthority('USER')")
 
 
 

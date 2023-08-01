@@ -96,7 +96,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
 
     @Override
     public PlayerGameDTO updatePlayer(PlayerMySQL updatedPlayer){
-        boolean existPlayerById = playerRepository.existsById(updatedPlayer.getId());
+        boolean existPlayerById = playerRepository.existsByEmail(updatedPlayer.getEmail());
         if(existPlayerById){
             boolean repitedName = false;
             repitedName = playerRepository.findAll()

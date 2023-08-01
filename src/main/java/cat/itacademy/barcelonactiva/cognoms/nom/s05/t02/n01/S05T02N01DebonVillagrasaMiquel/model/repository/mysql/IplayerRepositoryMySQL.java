@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface IplayerRepositoryMySQL extends JpaRepository<PlayerMySQL, Integer> {
-    boolean existsByName(String name);
+    boolean existsByEmail(String email);
     Optional<PlayerMySQL> findByEmail(String email);
 
 }

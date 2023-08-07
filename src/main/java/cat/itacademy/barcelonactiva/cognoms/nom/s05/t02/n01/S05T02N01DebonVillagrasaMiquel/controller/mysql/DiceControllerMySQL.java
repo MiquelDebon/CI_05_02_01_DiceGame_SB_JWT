@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 @Slf4j
-@Tag(name = "IT-Academy - MySQL")
+@Tag(name = "IT-Academy - MySQL", description = "MySQL Controller methods to deal with the Game")
 @RestController
 @RequestMapping("players")
 public class DiceControllerMySQL {
@@ -41,58 +41,11 @@ public class DiceControllerMySQL {
 
 
     /**
-     *  🟢POST Crea un jugador/a.
-     *  🔗http://localhost:9005/players
-     */
-    @Operation(
-            summary = "Save one player",
-            description = "Description: This method save a new player in the database",
-            parameters = @Parameter(
-                    name = "name",
-                    description = "The player's name otherwise it will ANONYMOUS"),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successful response",
-                            content = @Content(schema = @Schema(implementation = PlayerGameDTO.class),
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE)),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request buddy",
-                            content = @Content),
-                    @ApiResponse(
-                            responseCode = "403",
-                            description = BaseDescriptionException.E403_DESCRIPTION,
-                            content = @Content
-                    )
-            }
-    )
-    @PostMapping("/")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
-    public ResponseEntity<?> savePlayer(@RequestParam(required = false) String name){
-        PlayerGameDTO returnPlayer;
-        log.info("Controller - Save method");
-        try{
-            if(name == null){
-                returnPlayer = PGService.savePlayer(new PlayerMySQL(null, "ANONYMOYS"));
-            }else{
-                returnPlayer = PGService.savePlayer(new PlayerMySQL(null, name));
-            }
-            return new ResponseEntity<>(returnPlayer, HttpStatus.CREATED);
-        }catch (DuplicateUserNameException e){
-            throw e;
-        }catch (Exception e){
-            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-    /**
      *  🟠PUT  Modifica el nom del jugador/a.
      *   🔗http://localhost:9005/players
      */
     @Operation(
-            summary = "Update one player",
+            summary = "Update one player | Authorized: Admin or User with ID = ID_Token_User_Assigned",
             description = "Description: This method update a new player in the database",
             responses = {
                     @ApiResponse(
@@ -109,12 +62,12 @@ public class DiceControllerMySQL {
                             description = BaseDescriptionException.E403_DESCRIPTION,
                             content = @Content
                     )
-            }
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @PutMapping("/{id}")
     @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
-//    public ResponseEntity<?> updatePlayer(@PathVariable int id, @RequestBody RegisterRequest request){
-    public ResponseEntity<?> updatePlayer(@PathVariable int id, @RequestBody PlayerMySQL request){
+    public ResponseEntity<?> updatePlayer(@PathVariable int id, @RequestBody RegisterRequest request){
         try{
             PlayerGameDTO updatedDTO = PGService.updatePlayer(request);
             return new ResponseEntity<>(updatedDTO, HttpStatus.OK);
@@ -131,7 +84,7 @@ public class DiceControllerMySQL {
      *  @see <a href="http://localhost:9005/players/2/games"> 🔗 http://localhost:9005/players/2/games </a>
      */
     @Operation(
-            summary = "Play by ID player",
+            summary = "Play by ID player | Authorized: Admin or User with ID = ID_Token_User_Assigned",
             description = "Description: This method is to play a round",
             parameters = @Parameter(
                     name = "id",
@@ -156,7 +109,8 @@ public class DiceControllerMySQL {
                             description = BaseDescriptionException.E403_DESCRIPTION,
                             content = @Content
                     )
-            }
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @PostMapping("/{id}/games")
     @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
@@ -179,7 +133,7 @@ public class DiceControllerMySQL {
      *  @see <a href="http://localhost:9005/players"> 🔗http://localhost:9005/players</a>
      */
     @Operation(
-            summary = "Get all players",
+            summary = "Get all players and their average mark | Authorized: Admin and all User",
             description = "Description: This method retrieve all the player with their average mark",
             responses = {
                     @ApiResponse(
@@ -200,7 +154,8 @@ public class DiceControllerMySQL {
                             responseCode = "500",
                             description = "Internal error",
                             content = @Content)
-            }
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @GetMapping()
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
@@ -222,7 +177,7 @@ public class DiceControllerMySQL {
      *  @see <a href="http://localhost:9005/players/2"> 🔗http://localhost:9005/players/2</a>
      */
     @Operation(
-            summary = "All games from player",
+            summary = "All games from player | Authorized: Admin or User with ID = ID_Token_User_Assigned",
             description = "Description: This method retrieve all the games from the database by player ID",
             parameters = @Parameter(
                     name = "id", description = "ID player",
@@ -245,7 +200,8 @@ public class DiceControllerMySQL {
                             description = BaseDescriptionException.E403_DESCRIPTION,
                             content = @Content
                     )
-            }
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @GetMapping("/{id}")
     @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
@@ -266,7 +222,7 @@ public class DiceControllerMySQL {
      *  🔗http://localhost:9005/players/2/games
      */
     @Operation(
-            summary = "Delete all the games from player by id",
+            summary = "Delete all the games from player by id | Authorized: Admin or User with ID = ID_Token_User_Assigned",
             description = "Description: This method deletes all the games in the database from a player",
             parameters = @Parameter(
                     name = "id", description = "ID player",
@@ -286,7 +242,8 @@ public class DiceControllerMySQL {
                             description = BaseDescriptionException.E403_DESCRIPTION,
                             content = @Content
                     )
-            }
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @DeleteMapping("/{id}/games")
     @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
@@ -308,8 +265,8 @@ public class DiceControllerMySQL {
      */
 
     @Operation(
-            summary = "Delete all the games from player by id",
-            description = "Description: This method deletes all the games in the database from a player",
+            summary = "Get the ranking of the players | Authorized: Admin or all Users",
+            description = "Description: This method retrieve all the player order by their position ranking",
             parameters = @Parameter(
                     name = "id",
                     description = "ID player",
@@ -339,8 +296,8 @@ public class DiceControllerMySQL {
                             responseCode = "500",
                             description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
-            }
-
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @GetMapping("/ranking")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
@@ -361,7 +318,7 @@ public class DiceControllerMySQL {
      *  @see <a href="http://localhost:9005/players/ranking/loser"> 🔗http://localhost:9005/players/ranking/loser</a>
      */
     @Operation(
-            summary = "The worst player",
+            summary = "The worst player | Authorized: Admin and all Users",
             description = "Description: This method retrieve the worst player by the average mark",
             responses = {
                     @ApiResponse(
@@ -382,7 +339,8 @@ public class DiceControllerMySQL {
                             responseCode = "500",
                             description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
-            }
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @GetMapping("/ranking/loser")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
@@ -403,7 +361,7 @@ public class DiceControllerMySQL {
      *  @see <a href="http://localhost:9005/players/ranking/winnerr"> 🔗http://localhost:9005/players/ranking/winner</a>
      */
     @Operation(
-            summary = "The best player",
+            summary = "The best player | Authorized: Admin and all Users",
             description = "Description: This method retrieve the best player by the average mark",
             responses = {
                     @ApiResponse(
@@ -424,7 +382,8 @@ public class DiceControllerMySQL {
                             responseCode = "500",
                             description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
-            }
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @GetMapping("/ranking/winner")
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
@@ -440,7 +399,7 @@ public class DiceControllerMySQL {
     }
 
     @Operation(
-            summary = "Average success all players",
+            summary = "Average success mark from all players | Authorized: Admin",
             description = "Description: This method retrieve the average mark of success from all player",
             responses = {
                     @ApiResponse(
@@ -460,10 +419,11 @@ public class DiceControllerMySQL {
                             responseCode = "500",
                             description = BaseDescriptionException.E500_INTERNAL_ERROR,
                             content = @Content)
-            }
+            },
+            security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
     @GetMapping("/totalAverageMark")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAverageTotalMark(){
         OptionalDouble averageMark = PGService.averageTotalMarks();
         if(averageMark.isPresent()){

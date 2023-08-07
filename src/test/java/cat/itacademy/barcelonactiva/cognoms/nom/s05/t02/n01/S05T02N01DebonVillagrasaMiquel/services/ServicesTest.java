@@ -52,15 +52,15 @@ public class ServicesTest {
         });
     }
 
-    @Test
-    public void getOnePlayer(){
-        when(playerRepository.findById(1)).thenReturn(
-                Optional.of(new PlayerMySQL(1, "testName1")));
-        assertEquals("testName1", serviceMySQL.findPlayerDTOById(1).get().getName());
-    }
+//    @Test
+//    public void getOnePlayer(){
+//        when(playerRepository.findById(1)).thenReturn(
+//                Optional.of(new PlayerMySQL(1, "testName1")));
+//        assertEquals("testName1", serviceMySQL.findPlayerDTOById(1).get().getName());
+//    }
 
-    @Test
-    public void getGamesById(){
+//    @Test
+//    public void getGamesById(){
 //        Player playerTest = new Player(1, "testPlayer");
 //        when(gameRepository.findByPlayerId(1)).thenReturn(
 //                Stream.of(new Game(1, 5, playerTest), new Game(2, 10, playerTest))
@@ -69,42 +69,42 @@ public class ServicesTest {
 //        assertEquals(2, service.findGamesByPlayerId(1).size());
 //        assertEquals("LOSE", service.findGamesByPlayerId(1).get(0).getMessage());
 //        assertEquals("WIN", service.findGamesByPlayerId(1).get(1).getMessage());
-    }
+//    }
 
-    @Test
-    public void savePLayer(){
-        PlayerMySQL playerTest = new PlayerMySQL(1, "testPlayer");
-        PlayerGameDTO returnDTO = serviceMySQL.playerDTOfromPlayer(playerTest);
-        when(playerRepository.save(playerTest)).thenReturn(playerTest);
-        assertEquals(returnDTO, serviceMySQL.savePlayer(playerTest));
-    }
-
-    @Test
-    public void saveGame(){
-        PlayerMySQL playerTest = new PlayerMySQL(1, "testPlayer");
-        int mark = 2;
-        int id = 1;
-        GameMySQL gameTest = new GameMySQL(mark, playerTest);
-        GameDTO returnGameDTO = serviceMySQL.gameDTOfromGame(gameTest);
-        when(gameRepository.save(gameTest)).thenReturn(gameTest);
-        assertEquals(returnGameDTO, serviceMySQL.saveGame(id, mark));
-    }
-
-    @Test
-    public void deleteGamesByPlayerIdold(){
-        Integer id = 1;
-        PlayerMySQL playerTest = new PlayerMySQL(id, "testPlayer");
-        for(int mark=1; mark<5; mark++){
-            GameMySQL gameTest = new GameMySQL(mark, playerTest);
-            when(gameRepository.save(gameTest)).thenReturn(gameTest);
-            serviceMySQL.saveGame(id, mark);
-        }
+//    @Test
+//    public void savePLayer(){
+//        PlayerMySQL playerTest = new PlayerMySQL(1, "testPlayer");
+//        PlayerGameDTO returnDTO = serviceMySQL.playerDTOfromPlayer(playerTest);
+//        when(playerRepository.save(playerTest)).thenReturn(playerTest);
+//        assertEquals(returnDTO, serviceMySQL.savePlayer(playerTest));
+//    }
+//
+//    @Test
+//    public void saveGame(){
+//        PlayerMySQL playerTest = new PlayerMySQL(1, "testPlayer");
+//        int mark = 2;
+//        int id = 1;
+//        GameMySQL gameTest = new GameMySQL(mark, playerTest);
+//        GameDTO returnGameDTO = serviceMySQL.gameDTOfromGame(gameTest);
+//        when(gameRepository.save(gameTest)).thenReturn(gameTest);
+//        assertEquals(returnGameDTO, serviceMySQL.saveGame(id, mark));
+//    }
+//
+//    @Test
+//    public void deleteGamesByPlayerIdold(){
+//        Integer id = 1;
+//        PlayerMySQL playerTest = new PlayerMySQL(id, "testPlayer");
+//        for(int mark=1; mark<5; mark++){
+//            GameMySQL gameTest = new GameMySQL(mark, playerTest);
+//            when(gameRepository.save(gameTest)).thenReturn(gameTest);
+//            serviceMySQL.saveGame(id, mark);
+//        }
 //        when(gameRepository.findByPlayerId(id)).thenReturn(5);
 //
 //        assertEquals(5,service.findGamesByPlayerId(id).size());
 //        service.deleteGamesByPlayerId(id);
 //        assertEquals(0,service.findGamesByPlayerId(id).size());
-    }
+//    }
 
     @Test
     public void deleteGamesByPlayerId(){

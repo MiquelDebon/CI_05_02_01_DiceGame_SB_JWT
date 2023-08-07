@@ -1,12 +1,12 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mongodb;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mongodb.GameDTOMongoDB;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.LogicGame;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.UserNotFoundException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mongodb.PlayerGameDTOMongoDB;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mysql.GameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mongodb.GameMongoDB;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mongodb.PlayerMongoDB;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mongodb.IGameRepositoryMongoDB;
@@ -40,8 +40,8 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     public PlayerGameDTOMongoDB rankingPlayerDTOfromPlayer(PlayerMongoDB player){
         return new PlayerGameDTOMongoDB(player.getId(), player.getName(), this.succesRate(player.getId()));
     }
-    public GameDTO gameDTOfromGame(GameMongoDB game){
-        return new GameDTO(game.getMark());
+    public GameDTOMongoDB gameDTOfromGame(GameMongoDB game){
+        return new GameDTOMongoDB(game.getMark());
     }
 
     /**
@@ -128,7 +128,7 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     }
 
     @Override
-    public List<GameDTO> findGamesByPlayerId(String id){
+    public List<GameDTOMongoDB> findGamesByPlayerId(String id){
         if(playerRepositoryMongoDB.existsById(id)){
             return gameRepositoryMongoDB.findByPlayerId(id).stream()
                     .map(this::gameDTOfromGame)
@@ -140,7 +140,7 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     }
 
     @Override
-    public GameDTO saveGame(String id){
+    public GameDTOMongoDB saveGame(String id){
         int result = LogicGame.PLAY();
         Optional<PlayerMongoDB> player = playerRepositoryMongoDB.findById(id);
         if(player.isPresent()){
@@ -204,9 +204,9 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     }
 
     public Double averageMarkPLayer(String idPlayer){
-        List<GameDTO> games = findGamesByPlayerId(idPlayer);
+        List<GameDTOMongoDB> games = findGamesByPlayerId(idPlayer);
         return  Math.round((games.stream()
-                .mapToDouble(GameDTO::getMark)
+                .mapToDouble(GameDTOMongoDB::getMark)
                 .average()
                 .orElse(Double.NaN)) * 100.00) / 100.00;
 

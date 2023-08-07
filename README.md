@@ -35,6 +35,24 @@ The software must respect the main design patterns.
     - GET     /players/ranking/loser  -> returns the player with the worst success rate.
     - GET     /players/ranking/winner -> returns the player with the worst success rate.
 
+Endpoints filter by pre-authorization:
+```
+By ROLE: The role assigned to the user related to the JWT token
+@PreAuthorize("hasAuthority('ADMIN')")
+@PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+
+By ID: Where the ID must be the same that the id of the user related to the JWT token
+@PreAuthorize("#id == authentication.principal.id")
+
+By ID or ROLE: 
+@PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
+
+```
+### Swagger summary 
+![Phot](src/main/resources/screenShotProject/swagger_summary.png)
+
+
+
 ### References:
 - JPA entity relationships
   - [Bezkoder](https://www.bezkoder.com/jpa-one-to-many/) 

@@ -1,5 +1,6 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mysql;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.RegisterRequest;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.LogicGame;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,21 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     }
     public GameDTO gameDTOfromGame(GameMySQL game){
         return new GameDTO(game.getMark());
+    }
+
+    public PlayerMySQL playerMySQLfromRequested(RegisterRequest request){
+        int id = playerRepository.findByEmail(request.getEmail()).get().getId();
+
+//        return new PlayerMySQL(
+//                id,
+//                updatedPlayer.getFirstname(),
+//                new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+//                        .format(new java.util.Date()),
+//                updatedPlayer.getLastname(),
+//                updatedPlayer.getEmail(),
+//                updatedPlayer.getPassword()
+//        )
+        return null;
     }
 
     /**
@@ -76,35 +93,20 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     }
 
     @Override
-    public PlayerGameDTO savePlayer(PlayerMySQL newPlayer){
-        if(newPlayer.getName().equals("ANONYMOUS")){
-            playerRepository.save(newPlayer);
-            return this.playerDTOfromPlayer(newPlayer);
-        }else{
-            boolean repitedName = playerRepository.findAll()
-                    .stream().map(PlayerMySQL::getName)
-                    .anyMatch((n)-> n.equalsIgnoreCase(newPlayer.getName()));
-            if(!repitedName){
-                playerRepository.save(newPlayer);
-                return this.playerDTOfromPlayer(newPlayer);
-            }else{
-                log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
-                throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);
-            }
-        }
-    }
-
-    @Override
-    public PlayerGameDTO updatePlayer(PlayerMySQL updatedPlayer){
+    public PlayerGameDTO updatePlayer(RegisterRequest updatedPlayer){
+        PlayerMySQL newPlayer = null;
         boolean existPlayerById = playerRepository.existsByEmail(updatedPlayer.getEmail());
         if(existPlayerById){
             boolean repitedName = false;
             repitedName = playerRepository.findAll()
                     .stream().map(PlayerMySQL::getName)
-                    .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getName()));
+                    .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getFirstname()));
             if(!repitedName){
-                playerRepository.save(updatedPlayer);
-                return this.playerDTOfromPlayer(updatedPlayer);
+                int id = playerRepository.findByEmail(updatedPlayer.getEmail()).get().getId();
+//                newPlayer =
+//                playerRepository.save(updatedPlayer);
+//                return this.playerDTOfromPlayer(updatedPlayer);
+                return null;
             }else{
                 log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
                 throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);

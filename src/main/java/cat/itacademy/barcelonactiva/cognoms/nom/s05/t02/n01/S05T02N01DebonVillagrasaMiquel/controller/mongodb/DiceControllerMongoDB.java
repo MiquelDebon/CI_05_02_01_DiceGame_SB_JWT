@@ -1,9 +1,7 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.mongodb;
 
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.UserNotFoundException;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.RegisterRequest;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.*;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mongodb.GameDTOMongoDB;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mongodb.PlayerGameDTOMongoDB;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mongodb.PlayerMongoDB;
@@ -59,13 +57,13 @@ public class DiceControllerMongoDB {
             },
             security = {@SecurityRequirement(name = "Bearer Authentication")}
     )
-    @PutMapping()
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
-    public ResponseEntity<?> updatePlayer(@RequestBody PlayerMongoDB newPlayer){
+    @PutMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
+    public ResponseEntity<?> updatePlayer(@RequestBody RegisterRequest playerModified, @PathVariable String id){
         try{
-            PlayerGameDTOMongoDB updatedDTO = PGService.updatePlayer(newPlayer);
+            PlayerGameDTOMongoDB updatedDTO = PGService.updatePlayer(playerModified);
             return new ResponseEntity<>(updatedDTO, HttpStatus.OK);
-        }catch (UserNotFoundException | DuplicateUserNameException e){
+        }catch (UserNotFoundException | DuplicateUserNameException | DuplicateUserEmailException e){
             throw e;
         }catch (Exception e){
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);

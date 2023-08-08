@@ -1,9 +1,5 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.security.config;
 
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -90,21 +86,7 @@ public class SecurityConfiguration {
 
         return new OpenAPI().info(info)
                 .servers(List.of(devServer, prodServer));
-//                .addSecurityItem(new SecurityRequirement()
-//                        .addList("Bearer Authentication"))
-//                .components(new Components().addSecuritySchemes
-//                        ("Bearer Authentication", createAPIKeyScheme()));
     }
-
-//    private SecurityScheme createAPIKeyScheme() {
-//        return new SecurityScheme().type(SecurityScheme.Type.HTTP)
-//                .bearerFormat("JWT")
-//                .scheme("bearer");
-//    }
-
-
-
-
 
 
 }

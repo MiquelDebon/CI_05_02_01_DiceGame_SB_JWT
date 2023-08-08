@@ -29,28 +29,23 @@ public class AuthenticationMongoDBService {
 
 
     public AuthenticationResponse register(RegisterRequest request){
-        try{
-            checkDuplicatedEmail(request.getEmail());
-            checkDuplicatedName(request.getFirstname());
+        checkDuplicatedEmail(request.getEmail());
+        checkDuplicatedName(request.getFirstname());
 
-            PlayerMongoDB user;
-            if(!request.getEmail().contains("@admin.com")){
-                user = buildPlayer(request, Role.USER);
-                repository.save(user);
-            }else{
-                user = buildPlayer(request, Role.ADMIN);
-            }
+        PlayerMongoDB user;
+        if(!request.getEmail().contains("@admin.com")){
+            user = buildPlayer(request, Role.USER);
             repository.save(user);
-
-            var jwtToken = jwtService.generateToken(user);
-            return AuthenticationResponse.builder()
-                    .token(jwtToken)
-                    .build();
-        }catch (DuplicateUserEmailException e){
-            throw new DuplicateUserEmailException("Error duplicated email");
-        }catch (DuplicateUserNameException e){
-            throw new DuplicateUserEmailException("Error duplicated name");
+        }else{
+            user = buildPlayer(request, Role.ADMIN);
         }
+        repository.save(user);
+
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+
     }
 
 
@@ -74,7 +69,7 @@ public class AuthenticationMongoDBService {
                 .stream().map(PlayerMongoDB::getEmail)
                 .anyMatch((n)-> n.equalsIgnoreCase(email))
         ){
-            throw new DuplicateUserEmailException("Duplicated name");
+            throw new DuplicateUserEmailException("Duplicated email");
         }
     }
 

@@ -22,12 +22,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+
 public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     @Autowired
     private IGameRepositoryMySQL gameRepository;
     @Autowired
     private IplayerRepositoryMySQL playerRepository;
-
+    @Autowired
+    private AuthenticationMySQLService authenticationMySQLService;
 
     /**
      *
@@ -94,27 +96,34 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
 
     @Override
     public PlayerGameDTO updatePlayer(RegisterRequest updatedPlayer){
-        PlayerMySQL newPlayer = null;
-        boolean existPlayerById = playerRepository.existsByEmail(updatedPlayer.getEmail());
-        if(existPlayerById){
-            boolean repitedName = false;
-            repitedName = playerRepository.findAll()
-                    .stream().map(PlayerMySQL::getName)
-                    .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getFirstname()));
-            if(!repitedName){
-                int id = playerRepository.findByEmail(updatedPlayer.getEmail()).get().getId();
-//                newPlayer =
-//                playerRepository.save(updatedPlayer);
-//                return this.playerDTOfromPlayer(updatedPlayer);
-                return null;
-            }else{
-                log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
-                throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);
-            }
-        }else{
-            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
-            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
-        }
+        PlayerMySQL newPlayer = playerRepository.findByEmail(updatedPlayer.getEmail()).get();
+
+        authenticationMySQLService.checkDuplicatedName(updatedPlayer.getFirstname());
+        newPlayer.setName(updatedPlayer.getFirstname());
+        playerRepository.save(newPlayer);
+        return this.playerDTOfromPlayer(newPlayer);
+
+
+//        boolean existPlayerByEmail = playerRepository.existsByEmail(updatedPlayer.getEmail());
+//        if(existPlayerByEmail){
+//            boolean repitedName = false;
+//            repitedName = playerRepository.findAll()
+//                    .stream().map(PlayerMySQL::getName)
+//                    .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getFirstname()));
+//            if(!repitedName){
+//                int id = playerRepository.findByEmail(updatedPlayer.getEmail()).get().getId();
+////                newPlayer =
+////                playerRepository.save(updatedPlayer);
+////                return this.playerDTOfromPlayer(updatedPlayer);
+//                return null;
+//            }else{
+//                log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
+//                throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);
+//            }
+//        }else{
+//            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
+//            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
+//        }
     }
 
     @Override

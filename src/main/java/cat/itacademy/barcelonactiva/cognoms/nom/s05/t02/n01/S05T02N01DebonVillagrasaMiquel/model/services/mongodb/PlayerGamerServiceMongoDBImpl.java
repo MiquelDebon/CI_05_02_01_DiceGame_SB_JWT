@@ -1,6 +1,8 @@
 package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mongodb;
 
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.RegisterRequest;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mongodb.GameDTOMongoDB;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.Role;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.LogicGame;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
@@ -26,6 +28,10 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     @Autowired
     private IplayerRepositoryMongoDB playerRepositoryMongoDB;
 
+    @Autowired
+    private AuthenticationMongoDBService authenticationMongoDBService;
+
+
 
     /**
      *
@@ -43,6 +49,24 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
     public GameDTOMongoDB gameDTOfromGame(GameMongoDB game){
         return new GameDTOMongoDB(game.getMark());
     }
+
+//    public PlayerMongoDB playerMongoDBFromRegisterRequest(RegisterRequest updatedPlayer){
+//        PlayerMongoDB playerMongoDB = playerRepositoryMongoDB.findByEmail(updatedPlayer.getEmail()).get();
+//
+//        String id = playerMongoDB.getId();
+//        Role role = playerMongoDB.getRole();
+//
+//        return new PlayerMongoDB(
+//                id,
+//                updatedPlayer.getFirstname(),
+//                new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+//                        .format(new java.util.Date()),
+//                updatedPlayer.getLastname(),
+//                updatedPlayer.getEmail(),
+//                updatedPlayer.getPassword(),
+//                role
+//        );
+//    }
 
     /**
      *
@@ -76,44 +100,17 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
         }
     }
 
-    @Override
-    public PlayerGameDTOMongoDB savePlayer(PlayerMongoDB newPlayer){
-        if(newPlayer.getName().equals("ANONYMOYS")){
-            playerRepositoryMongoDB.save(newPlayer);
-            return this.playerDTOfromPlayer(newPlayer);
-        }else{
-            boolean repitedName = playerRepositoryMongoDB.findAll()
-                    .stream().map(PlayerMongoDB::getName)
-                    .anyMatch((n)-> n.equalsIgnoreCase(newPlayer.getName()));
-            if(!repitedName){
-                playerRepositoryMongoDB.save(newPlayer);
-                return this.playerDTOfromPlayer(newPlayer);
-            }else{
-                log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
-                throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);
-            }
-        }
-    }
 
     @Override
-    public PlayerGameDTOMongoDB updatePlayer(PlayerMongoDB updatedPlayer){
-        boolean existPlayerById = playerRepositoryMongoDB.existsById(updatedPlayer.getId());
-        if(existPlayerById){
-            boolean repitedName = false;
-            repitedName = playerRepositoryMongoDB.findAll()
-                    .stream().map(PlayerMongoDB::getName)
-                    .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getName()));
-            if(!repitedName){
-                playerRepositoryMongoDB.save(updatedPlayer);
-                return this.playerDTOfromPlayer(updatedPlayer);
-            }else{
-                log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
-                throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);
-            }
-        }else{
-            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
-            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
-        }
+    public PlayerGameDTOMongoDB updatePlayer(RegisterRequest updatedPlayer){
+
+        PlayerMongoDB newPlayer = playerRepositoryMongoDB.findByEmail(updatedPlayer.getEmail()).get();
+        authenticationMongoDBService.checkDuplicatedName(updatedPlayer.getFirstname());
+//        authenticationMongoDBService.checkDuplicatedEmail(updatedPlayer.getEmail());
+
+        newPlayer.setName(updatedPlayer.getFirstname());
+        playerRepositoryMongoDB.save(newPlayer);
+        return this.playerDTOfromPlayer(newPlayer);
     }
 
     @Override

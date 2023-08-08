@@ -38,7 +38,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(EmptyDataBaseException.class)
-    public ResponseEntity emptyDatabase(EmptyDataBaseException ex){
+    public ResponseEntity<?> emptyDatabase(EmptyDataBaseException ex){
         Map<String, String> mapError = new HashMap<>();
         mapError.put("ErrorMessage", ex.getMessage());
         return new ResponseEntity<>(mapError, HttpStatus.NO_CONTENT);

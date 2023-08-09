@@ -15,7 +15,7 @@ public interface IPlayerGamerServiceMySQL {
 
     List<PlayerGameDTO> getAllPlayersDTO();
     List<PlayerGameDTO> getAllPlayersDTORanking();
-    PlayerGameDTO updatePlayer(RegisterRequest updatedPlayer);
+    PlayerGameDTO updatePlayer(RegisterRequest updatedPlayer, String currentEmail);
     GameDTO saveGame(int id);
     void deleteGamesByPlayerId(int id);
     Optional<PlayerGameDTO> findPlayerDTOById(int id);

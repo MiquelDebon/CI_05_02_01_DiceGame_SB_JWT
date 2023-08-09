@@ -16,7 +16,7 @@ public interface IPlayerGamerServiceMongoDB {
 
     List<PlayerGameDTOMongoDB> getAllPlayersDTO();
     List<PlayerGameDTOMongoDB> getAllPlayersDTORanking();
-    PlayerGameDTOMongoDB updatePlayer(RegisterRequest player);
+    PlayerGameDTOMongoDB updatePlayer(RegisterRequest player, String username);
     GameDTOMongoDB saveGame(String id);
     void deleteGamesByPlayerId(String id);
     Optional<PlayerGameDTOMongoDB> findPlayerDTOById(String id);

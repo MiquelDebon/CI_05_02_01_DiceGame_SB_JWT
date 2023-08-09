@@ -2,10 +2,8 @@ package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVilla
 
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.RegisterRequest;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mongodb.GameDTOMongoDB;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.Role;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.LogicGame;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.UserNotFoundException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mongodb.PlayerGameDTOMongoDB;
@@ -13,8 +11,10 @@ import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillag
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mongodb.PlayerMongoDB;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mongodb.IGameRepositoryMongoDB;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mongodb.IplayerRepositoryMongoDB;
+import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.security.config.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,6 +30,8 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
 
     @Autowired
     private AuthenticationMongoDBService authenticationMongoDBService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
 
@@ -44,29 +46,12 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
         return new PlayerGameDTOMongoDB(player.getId(), player.getName(), this.averageMarkPLayer(player.getId()));
     }
     public PlayerGameDTOMongoDB rankingPlayerDTOfromPlayer(PlayerMongoDB player){
-        return new PlayerGameDTOMongoDB(player.getId(), player.getName(), this.succesRate(player.getId()));
+        return new PlayerGameDTOMongoDB(player.getId(), player.getName(), this.successRate(player.getId()));
     }
     public GameDTOMongoDB gameDTOfromGame(GameMongoDB game){
         return new GameDTOMongoDB(game.getMark());
     }
 
-//    public PlayerMongoDB playerMongoDBFromRegisterRequest(RegisterRequest updatedPlayer){
-//        PlayerMongoDB playerMongoDB = playerRepositoryMongoDB.findByEmail(updatedPlayer.getEmail()).get();
-//
-//        String id = playerMongoDB.getId();
-//        Role role = playerMongoDB.getRole();
-//
-//        return new PlayerMongoDB(
-//                id,
-//                updatedPlayer.getFirstname(),
-//                new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
-//                        .format(new java.util.Date()),
-//                updatedPlayer.getLastname(),
-//                updatedPlayer.getEmail(),
-//                updatedPlayer.getPassword(),
-//                role
-//        );
-//    }
 
     /**
      *
@@ -102,13 +87,21 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
 
 
     @Override
-    public PlayerGameDTOMongoDB updatePlayer(RegisterRequest updatedPlayer){
+    public PlayerGameDTOMongoDB updatePlayer(RegisterRequest updatedPlayer, String currentEmail){
 
-        PlayerMongoDB newPlayer = playerRepositoryMongoDB.findByEmail(updatedPlayer.getEmail()).get();
+        PlayerMongoDB newPlayer = playerRepositoryMongoDB.findByEmail(currentEmail).get();
         authenticationMongoDBService.checkDuplicatedName(updatedPlayer.getFirstname());
-//        authenticationMongoDBService.checkDuplicatedEmail(updatedPlayer.getEmail());
 
         newPlayer.setName(updatedPlayer.getFirstname());
+        newPlayer.setSurname(updatedPlayer.getLastname());
+        newPlayer.setPassword(passwordEncoder.encode(updatedPlayer.getPassword()));
+
+        if(!currentEmail.equalsIgnoreCase(updatedPlayer.getEmail())){
+            authenticationMongoDBService.checkDuplicatedEmail(updatedPlayer.getEmail());
+            newPlayer.setEmail(updatedPlayer.getEmail());
+            log.warn("Log out and log in again, otherwise the token will fail because the username won't match");
+        }
+
         playerRepositoryMongoDB.save(newPlayer);
         return this.playerDTOfromPlayer(newPlayer);
     }
@@ -188,7 +181,7 @@ public class PlayerGamerServiceMongoDBImpl implements IPlayerGamerServiceMongoDB
      * support methods
      *
      */
-    public double succesRate(String id){
+    public double successRate(String id){
         int rounds = gameRepositoryMongoDB.findByPlayerId(id).size();
         if(rounds == 0) return 0;
         else {

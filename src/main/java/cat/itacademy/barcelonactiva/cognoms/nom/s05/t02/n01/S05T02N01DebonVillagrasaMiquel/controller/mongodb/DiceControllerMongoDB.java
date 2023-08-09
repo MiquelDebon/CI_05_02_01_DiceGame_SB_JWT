@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,9 +61,17 @@ public class DiceControllerMongoDB {
     )
     @PutMapping("/{id}")
     @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
-    public ResponseEntity<?> updatePlayer(@RequestBody RegisterRequest playerModified, @PathVariable String id){
+    public ResponseEntity<?> updatePlayer(
+            @RequestBody RegisterRequest playerModified,
+            @PathVariable String id
+    ){
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String username = userDetails.getUsername();
+        log.info(username);
+
         try{
-            PlayerGameDTOMongoDB updatedDTO = PGService.updatePlayer(playerModified);
+            PlayerGameDTOMongoDB updatedDTO = PGService.updatePlayer(playerModified, username);
             return new ResponseEntity<>(updatedDTO, HttpStatus.OK);
         }catch (UserNotFoundException | DuplicateUserNameException | DuplicateUserEmailException e){
             throw e;

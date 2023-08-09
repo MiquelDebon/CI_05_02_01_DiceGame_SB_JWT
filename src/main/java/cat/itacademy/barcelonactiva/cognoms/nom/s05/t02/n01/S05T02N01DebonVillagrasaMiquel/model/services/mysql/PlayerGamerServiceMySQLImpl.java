@@ -3,7 +3,6 @@ package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVilla
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.RegisterRequest;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.LogicGame;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.BaseDescriptionException;
-import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.DuplicateUserNameException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.ExceptionHandler.EmptyDataBaseException;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mysql.GameDTO;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.dto.mysql.PlayerGameDTO;
@@ -14,9 +13,9 @@ import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillag
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql.IGameRepositoryMySQL;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,9 +26,12 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     @Autowired
     private IGameRepositoryMySQL gameRepository;
     @Autowired
-    private IplayerRepositoryMySQL playerRepository;
+    private IplayerRepositoryMySQL playerRepositorySQL;
     @Autowired
     private AuthenticationMySQLService authenticationMySQLService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     /**
      *
@@ -48,7 +50,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     }
 
     public PlayerMySQL playerMySQLfromRequested(RegisterRequest request){
-        int id = playerRepository.findByEmail(request.getEmail()).get().getId();
+        int id = playerRepositorySQL.findByEmail(request.getEmail()).get().getId();
 
 //        return new PlayerMySQL(
 //                id,
@@ -72,7 +74,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     @Override
     public List<PlayerGameDTO> getAllPlayersDTO(){
         try{
-            return playerRepository.findAll().stream()
+            return playerRepositorySQL.findAll().stream()
                     .map(p -> this.playerDTOfromPlayer(p))
                     .collect(Collectors.toList());
         }catch (RuntimeException e){
@@ -84,7 +86,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     @Override
     public List<PlayerGameDTO> getAllPlayersDTORanking(){
         try {
-            return playerRepository.findAll().stream()
+            return playerRepositorySQL.findAll().stream()
                     .map(p -> rankingPlayerDTOfromPlayer(p))
                     .sorted(Comparator.comparing(PlayerGameDTO::getAverageMark).reversed())
                     .collect(Collectors.toList());
@@ -95,40 +97,29 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     }
 
     @Override
-    public PlayerGameDTO updatePlayer(RegisterRequest updatedPlayer){
-        PlayerMySQL newPlayer = playerRepository.findByEmail(updatedPlayer.getEmail()).get();
+    public PlayerGameDTO updatePlayer(RegisterRequest updatedPlayer, String currentEmail){
 
+        PlayerMySQL newPlayer = playerRepositorySQL.findByEmail(currentEmail).get();
         authenticationMySQLService.checkDuplicatedName(updatedPlayer.getFirstname());
+
         newPlayer.setName(updatedPlayer.getFirstname());
-        playerRepository.save(newPlayer);
+        newPlayer.setSurname(updatedPlayer.getLastname());
+        newPlayer.setPassword(passwordEncoder.encode(updatedPlayer.getPassword()));
+
+        if(!currentEmail.equalsIgnoreCase(updatedPlayer.getEmail())){
+            authenticationMySQLService.checkDuplicatedEmail(updatedPlayer.getEmail());
+            newPlayer.setEmail(updatedPlayer.getEmail());
+            log.warn("Log out and log in again, otherwise the token will fail because the username won't match");
+        }
+
+        playerRepositorySQL.save(newPlayer);
         return this.playerDTOfromPlayer(newPlayer);
 
-
-//        boolean existPlayerByEmail = playerRepository.existsByEmail(updatedPlayer.getEmail());
-//        if(existPlayerByEmail){
-//            boolean repitedName = false;
-//            repitedName = playerRepository.findAll()
-//                    .stream().map(PlayerMySQL::getName)
-//                    .anyMatch((n) -> n.equalsIgnoreCase(updatedPlayer.getFirstname()));
-//            if(!repitedName){
-//                int id = playerRepository.findByEmail(updatedPlayer.getEmail()).get().getId();
-////                newPlayer =
-////                playerRepository.save(updatedPlayer);
-////                return this.playerDTOfromPlayer(updatedPlayer);
-//                return null;
-//            }else{
-//                log.error(BaseDescriptionException.DUPLICATED_USER_NAME);
-//                throw new DuplicateUserNameException(BaseDescriptionException.DUPLICATED_USER_NAME);
-//            }
-//        }else{
-//            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
-//            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
-//        }
     }
 
     @Override
     public Optional<PlayerGameDTO> findPlayerDTOById(int id){
-        Optional<PlayerMySQL> player = playerRepository.findById(id);
+        Optional<PlayerMySQL> player = playerRepositorySQL.findById(id);
         if(player.isPresent()){
             return Optional.of(this.playerDTOfromPlayer(player.get()));
         }else{
@@ -139,7 +130,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
 
     @Override
     public List<GameDTO> findGamesByPlayerId(int id){
-        if(playerRepository.existsById(id)){
+        if(playerRepositorySQL.existsById(id)){
             return gameRepository.findByPlayerId(id).stream()
                     .map(this::gameDTOfromGame)
                     .collect(Collectors.toList());
@@ -152,7 +143,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     @Override
     public GameDTO saveGame(int id){
         int result = LogicGame.PLAY();
-        Optional<PlayerMySQL> player = playerRepository.findById(id);
+        Optional<PlayerMySQL> player = playerRepositorySQL.findById(id);
         if(player.isPresent()){
             GameMySQL savedGame = gameRepository.save(new GameMySQL(result, player.get()));
             return gameDTOfromGame(savedGame);
@@ -164,7 +155,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
 
     @Override
     public void deleteGamesByPlayerId(int id){
-        if(playerRepository.existsById(id)){
+        if(playerRepositorySQL.existsById(id)){
             gameRepository.deleteByPlayerId(id);
         }else{
             log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);

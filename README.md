@@ -68,6 +68,7 @@ By ID or ROLE:
   - [Bezkoder - Spring Boot Token based Authentication with Spring Security & JWT](https://www.bezkoder.com/spring-boot-jwt-authentication/)
   - [Amigoscode - Spring Boot 3 + Spring Security 6 - JWT Authentication and Authorisation [NEW] [2023]](https://www.youtube.com/watch?v=KxqlJblhzfI&t=1040s)
   - [Bezkoder - Spring Boot 2 JWT Authentication with Spring Security](https://www.bezkoder.com/spring-boot-jwt-mysql-spring-security-architecture/)
+  - [PreAuthorization](https://docs.spring.io/spring-security/site/docs/5.0.7.RELEASE/reference/html/el-access.html)
 - More Swagger
   - [Swagger 3 annotations in Spring Boot](https://www.bezkoder.com/swagger-3-annotations/#Swagger_3_ApiResponses_and_ApiResponse_annotation)
   - [Spring Boot + Swagger 3 example (with OpenAPI 3) - Advanced](https://www.bezkoder.com/spring-boot-swagger-3/)

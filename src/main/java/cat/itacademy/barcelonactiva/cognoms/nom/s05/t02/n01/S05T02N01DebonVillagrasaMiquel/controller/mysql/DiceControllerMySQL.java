@@ -83,6 +83,7 @@ public class DiceControllerMySQL {
         }
     }
 
+
     /**
      *  🟢POST un jugador/a específic realitza una tirada dels daus.
      *  @see <a href="http://localhost:9005/players/2/games"> 🔗 http://localhost:9005/players/2/games </a>
@@ -129,7 +130,6 @@ public class DiceControllerMySQL {
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 
     /**
@@ -262,6 +262,7 @@ public class DiceControllerMySQL {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     /**
      *  🔵 GET Retorna el ranking mig de tots els jugadors/es del sistema. És a dir, el  percentatge mitjà d’èxits.

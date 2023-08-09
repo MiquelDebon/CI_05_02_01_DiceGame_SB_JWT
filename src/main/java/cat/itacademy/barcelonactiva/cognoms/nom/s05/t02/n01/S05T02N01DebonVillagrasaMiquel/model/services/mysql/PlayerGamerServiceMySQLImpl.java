@@ -49,20 +49,6 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
         return new GameDTO(game.getMark());
     }
 
-    public PlayerMySQL playerMySQLfromRequested(RegisterRequest request){
-        int id = playerRepositorySQL.findByEmail(request.getEmail()).get().getId();
-
-//        return new PlayerMySQL(
-//                id,
-//                updatedPlayer.getFirstname(),
-//                new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
-//                        .format(new java.util.Date()),
-//                updatedPlayer.getLastname(),
-//                updatedPlayer.getEmail(),
-//                updatedPlayer.getPassword()
-//        )
-        return null;
-    }
 
     /**
      *

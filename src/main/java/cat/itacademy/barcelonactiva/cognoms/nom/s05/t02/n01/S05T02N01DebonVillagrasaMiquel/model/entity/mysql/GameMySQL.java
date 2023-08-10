@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -19,15 +20,12 @@ import org.hibernate.annotations.OnDeleteAction;
 public class GameMySQL {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true)
     private Integer id;
 
     private int mark;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade=CascadeType.ALL)
-    @JoinColumn(name = "player_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade=CascadeType.PERSIST)
+    @JoinColumn(name = "player_id")
     @JsonIgnore  //is used to ignore the logical property used in serialization and deserialization
     private PlayerMySQL player;
 

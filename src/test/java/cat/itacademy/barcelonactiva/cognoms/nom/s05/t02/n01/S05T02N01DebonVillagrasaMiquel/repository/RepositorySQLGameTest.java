@@ -13,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @DataJpaTest
@@ -31,16 +30,11 @@ public class RepositorySQLGameTest {
 
     PlayerMySQL playerMySQL1 = new PlayerMySQL("Miquel");
     PlayerMySQL playerMySQL2 = new PlayerMySQL("Daniel");
-    GameMySQL gameMySQL_static1 = new GameMySQL(10, playerMySQL1);
-    GameMySQL gameMySQL_static2 = new GameMySQL(7, playerMySQL1);
-    GameMySQL gameMySQL_static3 = new GameMySQL(3, playerMySQL2);
+    GameMySQL gameMySQL_1 = new GameMySQL(10, playerMySQL1);
+    GameMySQL gameMySQL_2 = new GameMySQL(7, playerMySQL1);
+    GameMySQL gameMySQL_3 = new GameMySQL(3, playerMySQL2);
+    GameMySQL gameMySQL_4 = new GameMySQL(5, playerMySQL2);
 
-//    @BeforeEach
-//    public void setUp(){
-//        gameMySQLRepository.save(gameMySQL_static1);
-//        gameMySQLRepository.save(gameMySQL_static2);
-//        gameMySQLRepository.save(gameMySQL_static3);
-//    }
 
     @AfterEach
     public void SetAfter(){
@@ -50,7 +44,7 @@ public class RepositorySQLGameTest {
     @Test
     public void gameMySQLRepo_Save_ReturnGame(){
 
-        GameMySQL savedGame = gameMySQLRepository.save(gameMySQL_static1);
+        GameMySQL savedGame = gameMySQLRepository.save(gameMySQL_1);
         List<GameMySQL> list = gameMySQLRepository.findAll();
 
         Assertions.assertThat(savedGame).isNotNull();
@@ -60,9 +54,9 @@ public class RepositorySQLGameTest {
 
     @Test
     public void gameMySQLRepo_GetAll_ListPlayers(){
-        gameMySQLRepository.save(gameMySQL_static1);
-        gameMySQLRepository.save(gameMySQL_static2);
-        gameMySQLRepository.save(gameMySQL_static3);
+        gameMySQLRepository.save(gameMySQL_1);
+        gameMySQLRepository.save(gameMySQL_2);
+        gameMySQLRepository.save(gameMySQL_3);
 
 
         List<GameMySQL> list = gameMySQLRepository.findAll();
@@ -76,8 +70,8 @@ public class RepositorySQLGameTest {
 
     @Test
     public void gameMySQLRepo_findByID_ReturnGame(){
-        gameMySQLRepository.save(gameMySQL_static1);
-        int id = gameMySQL_static1.getId();
+        gameMySQLRepository.save(gameMySQL_1);
+        int id = gameMySQL_1.getId();
 
         log.warn(String.valueOf(id));
         log.warn(gameMySQLRepository.findAll().toString());
@@ -91,10 +85,10 @@ public class RepositorySQLGameTest {
 
     @Test
     public void gameMySQLRepo_deleteOne_ReturnIsEmpty(){
-        gameMySQLRepository.save(gameMySQL_static1);
+        gameMySQLRepository.save(gameMySQL_1);
         List<GameMySQL> previousList = gameMySQLRepository.findAll();
 
-        gameMySQLRepository.deleteById(gameMySQL_static1.getId());
+        gameMySQLRepository.deleteById(gameMySQL_1.getId());
         List<GameMySQL> postList = gameMySQLRepository.findAll();
 
         Assertions.assertThat(previousList.size()).isEqualTo(1);
@@ -103,9 +97,9 @@ public class RepositorySQLGameTest {
 
     @Test
     public void gameMySQL_findGamesByPlayer_ResultGameList(){
-        gameMySQLRepository.save(gameMySQL_static1);    //player1
-        gameMySQLRepository.save(gameMySQL_static2);    //player1
-        gameMySQLRepository.save(gameMySQL_static3);    //player2
+        gameMySQLRepository.save(gameMySQL_1);    //player1
+        gameMySQLRepository.save(gameMySQL_2);    //player1
+        gameMySQLRepository.save(gameMySQL_3);    //player2
 
         List<GameMySQL> list1Game = gameMySQLRepository.findByPlayerId(playerMySQL1.getId());
         List<GameMySQL> list2Game = gameMySQLRepository.findByPlayerId(playerMySQL2.getId());
@@ -116,28 +110,27 @@ public class RepositorySQLGameTest {
 
     @Test
     public void gameMySQLRepo_deleteGamesByPlayer_Return(){
-        gameMySQLRepository.save(gameMySQL_static1);    //player1
-        gameMySQLRepository.save(gameMySQL_static1);    //player1...
-        gameMySQLRepository.save(gameMySQL_static3);    //player2
+        gameMySQLRepository.save(gameMySQL_1);    //player1
+        gameMySQLRepository.save(gameMySQL_2);    //player1...
+        gameMySQLRepository.save(gameMySQL_3);    //player2
 
-        List<GameMySQL> previousList = gameMySQLRepository.findByPlayerId(playerMySQL1.getId());
-        log.info(previousList.toString());
+        List<GameMySQL> previousList_1 = gameMySQLRepository.findByPlayerId(playerMySQL1.getId());
+        List<GameMySQL> previousList_2 = gameMySQLRepository.findByPlayerId(playerMySQL2.getId());
 
-        List<GameMySQL> previousList2 = gameMySQLRepository.findByPlayerId(playerMySQL2.getId());
-        log.info(previousList2.toString());
-
-        //TODO Check why is failing at deleting some an other not...
         gameMySQLRepository.deleteByPlayerId(playerMySQL1.getId());
         gameMySQLRepository.deleteByPlayerId(playerMySQL2.getId());
-//        List<GameMySQL> postList = gameMySQLRepository.findByPlayerId(playerMySQL1.getId());
-
-        List<GameMySQL> postList2 = gameMySQLRepository.findByPlayerId(playerMySQL2.getId());
-        log.info(postList2.toString());
+        List<GameMySQL> postList_1 = gameMySQLRepository.findByPlayerId(playerMySQL1.getId());
+        List<GameMySQL> postList_2 = gameMySQLRepository.findByPlayerId(playerMySQL2.getId());
 
 
-        Assertions.assertThat(previousList2.size()).isEqualTo(1);
-        Assertions.assertThat(postList2.size()).isEqualTo(0);
-        Assertions.assertThat(postList2).isEmpty();
+        Assertions.assertThat(previousList_1.size()).isEqualTo(2);
+        Assertions.assertThat(postList_1.size()).isEqualTo(0);
+        Assertions.assertThat(postList_1).isEmpty();
+
+        Assertions.assertThat(previousList_2.size()).isEqualTo(1);
+        Assertions.assertThat(postList_2.size()).isEqualTo(0);
+        Assertions.assertThat(postList_2).isEmpty();
+
     }
 
 

@@ -3,6 +3,7 @@ package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVilla
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class PlayerMySQL implements UserDetails {
     //Unique except "Anonymous" using Backend not SQL
     @Column(nullable = false)
     @Schema(defaultValue = "PlayerName", description = "Here goes the player's name")
+    @Size(min = 3, max = 20)
     private String name;
 
     @Column(nullable = false)
@@ -44,6 +46,11 @@ public class PlayerMySQL implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    public PlayerMySQL(String name){
+        this.name = name;
+        registerDate = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+                .format(new java.util.Date());
+    }
 
 
     public PlayerMySQL(Integer id, String name){

@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
         classes = DiceControllerMySQL.class)
 @AutoConfigureMockMvc
-public class ControllerTest {
+public class ControllerSQLTest {
     @Autowired
     private MockMvc mockMvc;
 

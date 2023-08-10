@@ -22,19 +22,19 @@ public class AppConfiguration {
     private final IplayerRepositoryMongoDB userRepositoryMongoDB;
 
     //MySQL
-//    @Bean
-//    public UserDetailsService userDetailsService(){
-//        return username -> userRepository.findByEmail(username)
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//    }
-
-    // TODO Try to enable both databases work at the same time
-    //MongoDB
     @Bean
     public UserDetailsService userDetailsService(){
-        return username -> userRepositoryMongoDB.findByEmail(username)
+        return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+//     TODO Try to enable both databases work at the same time
+//    MongoDB
+//    @Bean
+//    public UserDetailsService userDetailsService(){
+//        return username -> userRepositoryMongoDB.findByEmail(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider(){

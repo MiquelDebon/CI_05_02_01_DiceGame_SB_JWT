@@ -60,6 +60,8 @@ By ID or ROLE:
 - [JPA custom queries - Bezkoder](https://www.bezkoder.com/jpa-repository-query/)
 - [Swagger - Bezkoder](https://www.bezkoder.com/swagger-3-annotations/)
 - Testing
+  - Arrange Act Assert
+  - [Spring Boot Unit Testing Tutorial (W/ Mockito) - Teddy Smith](https://www.youtube.com/playlist?list=PL82C6-O4XrHcg8sNwpoDDhcxUCbFy855E)
   - [Writing JUnit Tests using JUnit and Mockito | Java Techie](https://www.youtube.com/watch?v=kXhYu939_5s)
   - [PRUEBAS de INTEGRACIÓN en SPRING BOOT | Programando en Java](https://www.youtube.com/watch?v=fEv3AXFqLXg)
   - [Learn Unit Testing and Integration Testing | AmigosCode](https://www.youtube.com/watch?v=Geq60OVyBPg)
@@ -69,6 +71,7 @@ By ID or ROLE:
   - [Amigoscode - Spring Boot 3 + Spring Security 6 - JWT Authentication and Authorisation [NEW] [2023]](https://www.youtube.com/watch?v=KxqlJblhzfI&t=1040s)
   - [Bezkoder - Spring Boot 2 JWT Authentication with Spring Security](https://www.bezkoder.com/spring-boot-jwt-mysql-spring-security-architecture/)
   - [PreAuthorization](https://docs.spring.io/spring-security/site/docs/5.0.7.RELEASE/reference/html/el-access.html)
+  
 - More Swagger
   - [Swagger 3 annotations in Spring Boot](https://www.bezkoder.com/swagger-3-annotations/#Swagger_3_ApiResponses_and_ApiResponse_annotation)
   - [Spring Boot + Swagger 3 example (with OpenAPI 3) - Advanced](https://www.bezkoder.com/spring-boot-swagger-3/)

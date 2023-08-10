@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface IGameRepositoryMySQL extends JpaRepository<GameMySQL, Integer> {
+
     @Transactional
-    void deleteByPlayerId(int playerId);
+    void deleteByPlayerId(int id);
     List<GameMySQL> findByPlayerId(int id);
 }

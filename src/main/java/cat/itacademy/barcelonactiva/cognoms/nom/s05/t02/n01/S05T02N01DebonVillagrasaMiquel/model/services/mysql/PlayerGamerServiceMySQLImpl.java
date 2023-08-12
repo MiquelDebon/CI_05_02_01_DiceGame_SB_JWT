@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-
 public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     @Autowired
     private IGameRepositoryMySQL gameRepository;
@@ -43,7 +42,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
         return new PlayerGameDTO(player.getId(), player.getName(), this.averageMarkPLayer(player.getId()));
     }
     public PlayerGameDTO rankingPlayerDTOfromPlayer(PlayerMySQL player){
-        return new PlayerGameDTO(player.getId(), player.getName(), this.succesRate(player.getId()));
+        return new PlayerGameDTO(player.getId(), player.getName(), this.successRate(player.getId()));
     }
     public GameDTO gameDTOfromGame(GameMySQL game){
         return new GameDTO(game.getMark());
@@ -59,24 +58,28 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
 
     @Override
     public List<PlayerGameDTO> getAllPlayersDTO(){
-        try{
-            return playerRepositorySQL.findAll().stream()
+
+        List<PlayerMySQL> playerMySQLList = playerRepositorySQL.findAll();
+        if(playerMySQLList.size() > 0){
+            return playerMySQLList.stream()
                     .map(p -> this.playerDTOfromPlayer(p))
                     .collect(Collectors.toList());
-        }catch (RuntimeException e){
+        }else{
             log.error(BaseDescriptionException.EMPTY_DATABASE);
             throw new EmptyDataBaseException(BaseDescriptionException.EMPTY_DATABASE);
         }
+
     }
 
     @Override
     public List<PlayerGameDTO> getAllPlayersDTORanking(){
-        try {
-            return playerRepositorySQL.findAll().stream()
+        List<PlayerMySQL> playerMySQLList = playerRepositorySQL.findAll();
+        if(playerMySQLList.size() > 0){
+            return playerMySQLList.stream()
                     .map(p -> rankingPlayerDTOfromPlayer(p))
                     .sorted(Comparator.comparing(PlayerGameDTO::getAverageMark).reversed())
                     .collect(Collectors.toList());
-        }catch (RuntimeException e){
+        }else{
             log.error(BaseDescriptionException.EMPTY_DATABASE);
             throw new EmptyDataBaseException(BaseDescriptionException.EMPTY_DATABASE);
         }
@@ -127,22 +130,21 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     }
 
     @Override
-    public GameDTO saveGame(int id){
+    public GameDTO saveGame(int playerId){
         int result = LogicGame.PLAY();
-        Optional<PlayerMySQL> player = playerRepositorySQL.findById(id);
-        if(player.isPresent()){
-            GameMySQL savedGame = gameRepository.save(new GameMySQL(result, player.get()));
-            return gameDTOfromGame(savedGame);
-        }else {
-            log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
-            throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
-        }
+        PlayerMySQL player = playerRepositorySQL.findById(playerId).
+                orElseThrow(() -> new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID));
+
+        GameMySQL savedGame = gameRepository.save(new GameMySQL(result, player));
+        return gameDTOfromGame(savedGame);
     }
 
     @Override
-    public void deleteGamesByPlayerId(int id){
+    public List<GameDTO> deleteGamesByPlayerId(int id){
         if(playerRepositorySQL.existsById(id)){
-            gameRepository.deleteByPlayerId(id);
+            return gameRepository.deleteByPlayerId(id).stream()
+                    .map(this::gameDTOfromGame)
+                    .collect(Collectors.toList());
         }else{
             log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
             throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
@@ -178,7 +180,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
      * support methods
      *
      */
-    public double succesRate(int id){
+    public double successRate(int id){
         int rounds = gameRepository.findByPlayerId(id).size();
         if(rounds == 0) return 0;
         else {
@@ -189,6 +191,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
             return (double) Math.round(((double) wonRounds / rounds) * 10000) /100;
         }
     }
+
 
     public Double averageMarkPLayer(int idPlayer){
         List<GameDTO> games = findGamesByPlayerId(idPlayer);

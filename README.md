@@ -80,3 +80,36 @@ By ID or ROLE:
   - [REST API Request Validation & Exception Handling Realtime Example | JavaTechie](https://www.youtube.com/watch?v=gPnd-hzM_6A)
   - [How To Handle Exceptions | Amigoscode](https://www.youtube.com/watch?v=PzK4ZXa2Tbc)
 
+
+
+
+### Testing 
+
+<table>
+   <tr>
+      <td><p>Repository SQL Game</p></td>
+      <td><p>Repository SQL Player</p></td>
+   </tr>
+   <tr>
+      <td> 
+      <img src="src/main/resources/imagesTest/repositorySQLGame.png" />
+      </td>
+      <td>
+      <img src="src/main/resources/imagesTest/repositorySQLPlayer.png">
+      </td>
+   </tr>
+    <tr>
+      <td><p>Services </p></td>
+      <td><p>-</p></td>
+   </tr>
+    <tr>
+      <td> 
+      <img src="src/main/resources/imagesTest/serviceSQLPlayerGame.png" />
+      </td>
+      <td>
+      <img src="">
+      </td>
+   </tr>
+ 
+
+</table>

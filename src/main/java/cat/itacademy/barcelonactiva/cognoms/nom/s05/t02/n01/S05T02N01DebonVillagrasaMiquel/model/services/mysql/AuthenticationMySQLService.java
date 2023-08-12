@@ -69,7 +69,7 @@ public class AuthenticationMySQLService {
                 .build();
     }
 
-    void checkDuplicatedEmail(String email){
+    public void checkDuplicatedEmail(String email){
         if(playerRepository.findAll()
                 .stream().map(PlayerMySQL::getEmail)
                 .anyMatch((n)-> n.equalsIgnoreCase(email))
@@ -78,7 +78,7 @@ public class AuthenticationMySQLService {
         }
     }
 
-    void checkDuplicatedName(String name){
+    public void checkDuplicatedName(String name){
         if (
             !name.equalsIgnoreCase("ANONYMOUS")
             &&

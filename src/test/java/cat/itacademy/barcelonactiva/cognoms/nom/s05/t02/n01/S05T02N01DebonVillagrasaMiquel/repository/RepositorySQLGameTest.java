@@ -33,7 +33,6 @@ public class RepositorySQLGameTest {
     GameMySQL gameMySQL_1 = new GameMySQL(10, playerMySQL1);
     GameMySQL gameMySQL_2 = new GameMySQL(7, playerMySQL1);
     GameMySQL gameMySQL_3 = new GameMySQL(3, playerMySQL2);
-    GameMySQL gameMySQL_4 = new GameMySQL(5, playerMySQL2);
 
 
     @AfterEach

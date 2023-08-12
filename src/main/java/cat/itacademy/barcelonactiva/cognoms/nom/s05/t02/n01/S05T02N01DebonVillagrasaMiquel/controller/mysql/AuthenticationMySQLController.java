@@ -75,4 +75,6 @@ public class AuthenticationMySQLController {
         return ResponseEntity.ok(service.authenticate(request));
     }
 
+
+
 }

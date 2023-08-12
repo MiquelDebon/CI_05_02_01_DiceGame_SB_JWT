@@ -28,8 +28,12 @@ public class AppConfiguration {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-//     TODO Try to enable both databases work at the same time
-//    MongoDB
+    /**
+     * TODO Try to enable both databases work at the same time
+     * Pero tranqui lo investigo y lo aprendo!;)
+     */
+
+    //MongoDB
 //    @Bean
 //    public UserDetailsService userDetailsService(){
 //        return username -> userRepositoryMongoDB.findByEmail(username)

@@ -10,6 +10,6 @@ import java.util.List;
 public interface IGameRepositoryMySQL extends JpaRepository<GameMySQL, Integer> {
 
     @Transactional
-    void deleteByPlayerId(int id);
+    List<GameMySQL> deleteByPlayerId(int id);
     List<GameMySQL> findByPlayerId(int id);
 }

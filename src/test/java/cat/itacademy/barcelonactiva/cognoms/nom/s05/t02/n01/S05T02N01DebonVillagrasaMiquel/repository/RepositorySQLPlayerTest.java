@@ -98,12 +98,15 @@ public class RepositorySQLPlayerTest {
     public void playerMySQLRepo_DeleteById_ReturnIsEmpty(){
         PlayerMySQL playerMySQL = new PlayerMySQL("Miquel");
         playerMySQLRepository.save(playerMySQL);
+        List<PlayerMySQL> list = playerMySQLRepository.findAll();
+
         playerMySQLRepository.deleteById(playerMySQL.getId());
 
-        List<PlayerMySQL> list = playerMySQLRepository.findAll();
+        List<PlayerMySQL> listEmpty = playerMySQLRepository.findAll();
         Optional<PlayerMySQL> optional = playerMySQLRepository.findById(playerMySQL.getId());
 
-        Assertions.assertThat(list).isEmpty();
+        Assertions.assertThat(list).isNotEmpty();
+        Assertions.assertThat(listEmpty).isEmpty();
         Assertions.assertThat(optional).isEmpty();
     }
 

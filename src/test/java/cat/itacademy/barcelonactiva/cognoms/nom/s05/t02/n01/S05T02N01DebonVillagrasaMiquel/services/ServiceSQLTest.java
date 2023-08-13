@@ -11,6 +11,7 @@ import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillag
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.services.mysql.PlayerGamerServiceMySQLImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -172,9 +173,12 @@ public class ServiceSQLTest {
 
         // Verify that the saved game is not returned after deletion
         Assertions.assertThat(deletedGames.size()).isEqualTo(2);
+        Mockito.verify(gameRepositorySQL, Mockito.times(2)).deleteByPlayerId(1);
     }
 
+
 //    @Test
+//    @Disabled
 //    public void gamedelte2(){
 //        Integer id = 1;
 //        PlayerMySQL playerTest = new PlayerMySQL(id, "testPlayer");

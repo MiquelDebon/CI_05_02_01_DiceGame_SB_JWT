@@ -44,4 +44,11 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(mapError, HttpStatus.NO_CONTENT);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> internalErroException(Exception ex){
+        Map<String, String> mapError = new HashMap<>();
+        mapError.put("ErrorMessage", ex.getMessage());
+        return new ResponseEntity<>(mapError, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

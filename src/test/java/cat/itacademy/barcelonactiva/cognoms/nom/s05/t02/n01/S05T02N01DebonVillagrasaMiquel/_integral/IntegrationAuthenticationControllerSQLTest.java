@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -21,19 +22,18 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-//@WebMvcTest(controllers = AuthenticationMySQLService.class)
-//@AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-public class IntegralAuthenticationControllerSQL {
+public class IntegrationAuthenticationControllerSQLTest {
 
-//    @Autowired
+    @Autowired
     private MockMvc mockMvc;
-    @Mock
-    private AuthenticationMySQLService authServices;
     @InjectMocks
     private AuthenticationMySQLController authController;
+    @Mock
+    private AuthenticationMySQLService authServices;
 
 
     private RegisterRequest registerRequest;
@@ -57,19 +57,46 @@ public class IntegralAuthenticationControllerSQL {
     }
 
     @Test
-    public void diceController_playGame_ReturnGameDTO() throws Exception{
+    public void authController_registerUser_returnToken() throws Exception{
         given(authServices.register(registerRequest)).willReturn(authenticationResponse);
 
         mockMvc.perform(post("/api/mysql/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsBytes(registerRequest)))
-                        .andExpect(status().isOk())
+
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value(authenticationResponse.getToken()))
                 .andDo(MockMvcResultHandlers.print());
 
         verify(authServices, times(1)).register(registerRequest);
     }
 
 
+    @Test
+    public void authController_loginUser_returnToken() throws Exception{
+        given(authServices.authenticate(loginRequest)).willReturn(authenticationResponse);
+
+        mockMvc.perform(post("/api/mysql/auth/authenticate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsBytes(loginRequest)))
+
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value(authenticationResponse.getToken()))
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(authServices, times(1)).authenticate(loginRequest);
+    }
+
+//    @Test
+//    public void diceController_forbidden_returnException() throws Exception{
+////        given(authServices.authenticate(loginRequest)).willReturn(authenticationResponse);
+//
+//        mockMvc.perform(post("/api/mysql/authenticate")
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isForbidden())
+//                .andDo(MockMvcResultHandlers.print());
+//
+//    }
 
 
 }

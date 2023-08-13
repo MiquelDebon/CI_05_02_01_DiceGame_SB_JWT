@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
+
+    //TODO Add success rate to Player to not calculate it each time
+
     @Autowired
     private IGameRepositoryMySQL gameRepository;
     @Autowired

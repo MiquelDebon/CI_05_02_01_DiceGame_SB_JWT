@@ -65,6 +65,7 @@ By ID or ROLE:
   - [Writing JUnit Tests using JUnit and Mockito | Java Techie](https://www.youtube.com/watch?v=kXhYu939_5s)
   - [PRUEBAS de INTEGRACIÓN en SPRING BOOT | Programando en Java](https://www.youtube.com/watch?v=fEv3AXFqLXg)
   - [Learn Unit Testing and Integration Testing | AmigosCode](https://www.youtube.com/watch?v=Geq60OVyBPg)
+  - [@DataJpaTest example for Spring Data Repository Unit Test | Bezkoder](https://www.bezkoder.com/spring-boot-unit-test-jpa-repo-datajpatest/)
   
 - JWT - SpringBoot Security
   - [Bezkoder - Spring Boot Token based Authentication with Spring Security & JWT](https://www.bezkoder.com/spring-boot-jwt-authentication/)
@@ -79,7 +80,7 @@ By ID or ROLE:
 - Exception Handler
   - [REST API Request Validation & Exception Handling Realtime Example | JavaTechie](https://www.youtube.com/watch?v=gPnd-hzM_6A)
   - [How To Handle Exceptions | Amigoscode](https://www.youtube.com/watch?v=PzK4ZXa2Tbc)
-
+  - [Spring Boot @ControllerAdvice & @ExceptionHandler example | Bezkoder](https://www.bezkoder.com/spring-boot-controlleradvice-exceptionhandler/)
 
 
 

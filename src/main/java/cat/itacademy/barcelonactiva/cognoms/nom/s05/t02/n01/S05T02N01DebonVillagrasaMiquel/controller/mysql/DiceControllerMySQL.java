@@ -209,7 +209,7 @@ public class DiceControllerMySQL {
     )
     @GetMapping("/{id}")
     @PreAuthorize("#id == authentication.principal.id or hasAuthority('ADMIN')")
-    public ResponseEntity<?> getGamePlayers(@PathVariable int id){
+    public ResponseEntity<?> getGamePlayer(@PathVariable int id){
         try{
             List<GameDTO> returnList =  PGService.findGamesByPlayerId(id);
             return new ResponseEntity<>(returnList, HttpStatus.OK);

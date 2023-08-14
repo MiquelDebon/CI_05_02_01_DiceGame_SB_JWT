@@ -1,4 +1,4 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel._integral;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.mysql;
 
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.AuthenticationResponse;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.LoginRequest;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-public class IntegrationAuthenticationControllerSQLTest {
+public class AuthenticationControllerSQLTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -86,17 +86,6 @@ public class IntegrationAuthenticationControllerSQLTest {
 
         verify(authServices, times(1)).authenticate(loginRequest);
     }
-
-//    @Test
-//    public void diceController_forbidden_returnException() throws Exception{
-////        given(authServices.authenticate(loginRequest)).willReturn(authenticationResponse);
-//
-//        mockMvc.perform(post("/api/mysql/authenticate")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isForbidden())
-//                .andDo(MockMvcResultHandlers.print());
-//
-//    }
 
 
 }

@@ -1,4 +1,4 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql;
 
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.GameMySQL;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.PlayerMySQL;
@@ -110,7 +110,7 @@ public class RepositorySQLGameTest {
     @Test
     public void gameMySQLRepo_deleteGamesByPlayer_Return(){
         gameMySQLRepository.save(gameMySQL_1);    //player1
-        gameMySQLRepository.save(gameMySQL_2);    //player1...
+        gameMySQLRepository.save(gameMySQL_2);    //player1
         gameMySQLRepository.save(gameMySQL_3);    //player2
 
         List<GameMySQL> previousList_1 = gameMySQLRepository.findByPlayerId(playerMySQL1.getId());
@@ -129,7 +129,6 @@ public class RepositorySQLGameTest {
         Assertions.assertThat(previousList_2.size()).isEqualTo(1);
         Assertions.assertThat(postList_2.size()).isEqualTo(0);
         Assertions.assertThat(postList_2).isEmpty();
-
     }
 
 

@@ -88,8 +88,8 @@ By ID or ROLE:
 
 <table>
    <tr>
-      <td><p>Repository SQL Game</p></td>
-      <td><p>Repository SQL Player</p></td>
+      <td><p>Repository Game SQL</p></td>
+      <td><p>Repository Player SQL</p></td>
    </tr>
    <tr>
       <td> 
@@ -100,7 +100,7 @@ By ID or ROLE:
       </td>
    </tr>
     <tr>
-      <td><p>Services </p></td>
+      <td><p>Dice Game Services SQL </p></td>
       <td><p>-</p></td>
    </tr>
     <tr>
@@ -109,6 +109,20 @@ By ID or ROLE:
       </td>
       <td>
       <img src="">
+      </td>
+   </tr>
+
+  </tr>
+    <tr>
+      <td><p>Controller Dice Game SQL </p></td>
+      <td><p>Controller Authoritzation SQL</p></td>
+   </tr>
+    <tr>
+      <td> 
+      <img src="src/main/resources/imagesTest/diceGameControllerSQLTest.png" />
+      </td>
+      <td>
+      <img src="src/main/resources/imagesTest/authControllerSQLTest.png">
       </td>
    </tr>
  

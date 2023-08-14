@@ -1,4 +1,4 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel._integral;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.mysql;
 
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.auth.RegisterRequest;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.controller.mysql.DiceControllerMySQL;
@@ -28,22 +28,24 @@ import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-public class IntegrationDiceGameControllerSQLTest {
+public class DiceGameControllerSQLTest {
 
     //We need to fake HTTP requests. So we will autowire a MockMvc bean which Spring Boot autoconfigures.
     @Autowired
     private MockMvc mockMvc;
     @InjectMocks
-    private DiceControllerMySQL controller;
+    private DiceControllerMySQL underTestController;
     @Mock
     private PlayerGamerServiceMySQLImpl service;
+    @Mock
+    private SecurityContextHolder securityContextHolder;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -56,7 +58,7 @@ public class IntegrationDiceGameControllerSQLTest {
     private UserDetails userDetails;
     @BeforeEach
     public void init(){
-        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+        mockMvc = MockMvcBuilders.standaloneSetup(underTestController)
                 .setControllerAdvice(new ApiExceptionHandler())
                 .build();
         objectMapper = new ObjectMapper();
@@ -78,23 +80,8 @@ public class IntegrationDiceGameControllerSQLTest {
 
 
     @Test
-    @Disabled
-    public void diceController_updatePlayer_returnUpdatedPlayerDTO() throws Exception{
-        given(service.updatePlayer(registerRequest, registerRequest.getEmail())).willThrow(UserNotFoundException.class);
-        mockMvc.perform(put("/players/{id}", player.getId()))
-                        .andExpect(status().isNotFound());
-
-//        given(service.updatePlayer(registerRequest, registerRequest.getEmail())).willReturn(playerGameDTO);
-//        mockMvc.perform(put("/players/{id}", player.getId())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(objectMapper.writeValueAsBytes(registerRequest)))
-//
-//                .andExpect(status().isOk());
-
-    }
-
-    @Test
     public void diceController_playGame_returnGameDTO() throws Exception{
+
         given(service.saveGame(player.getId())).willReturn(gameDTO);
         mockMvc.perform(post("/players/{id}/games", player.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -234,7 +221,18 @@ public class IntegrationDiceGameControllerSQLTest {
     }
 
 
+    @Test
+    @Disabled
+    public void diceController_updatePlayer_returnUpdatedPlayerDTO() throws Exception{
+        given(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).willReturn(userDetails);
 
+        given(service.updatePlayer(registerRequest, registerRequest.getEmail())).willReturn(playerGameDTO);
+        mockMvc.perform(put("/players/{id}", player.getId(), registerRequest)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(playerGameDTO)))
+
+                .andExpect(status().isOk());
+    }
 
 
 }

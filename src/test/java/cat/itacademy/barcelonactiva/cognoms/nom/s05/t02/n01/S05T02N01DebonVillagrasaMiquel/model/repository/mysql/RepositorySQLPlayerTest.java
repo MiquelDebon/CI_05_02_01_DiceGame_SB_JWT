@@ -1,10 +1,11 @@
-package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.repository;
+package cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql;
 
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.Role;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.entity.mysql.PlayerMySQL;
 import cat.itacademy.barcelonactiva.cognoms.nom.s05.t02.n01.S05T02N01DebonVillagrasaMiquel.model.repository.mysql.IplayerRepositoryMySQL;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -29,22 +30,32 @@ public class RepositorySQLPlayerTest {
     @Autowired
     private IplayerRepositoryMySQL playerMySQLRepository;
 
-    private static PlayerMySQL playerMySQL_AllArguments = PlayerMySQL.builder()
-            .name("Miquel")
-            .surname("Debon")
-            .role(Role.USER)
-            .email("mdebonbcn@gmail.com")
-            .password("mimi")
-            .registerDate(new Date().toString())
-            .build();
+    private PlayerMySQL playerMySQL_AllArguments;
+    private PlayerMySQL playerMySQL1;
+    private PlayerMySQL playerMySQL2;
+
+    @BeforeEach
+    public void setUp(){
+        playerMySQL_AllArguments = PlayerMySQL.builder()
+                .name("Miquel")
+                .surname("Debon")
+                .role(Role.USER)
+                .email("mdebonbcn@gmail.com")
+                .password("mimi")
+                .registerDate(new Date().toString())
+                .build();
+
+        playerMySQL1 = new PlayerMySQL("Miquel");
+        playerMySQL2 = new PlayerMySQL("Marta");
+    }
+
 
     @Test
     public void playerMySQLRepo_Save_ReturnSavedPlayer(){
         //Arrange
-        PlayerMySQL playerMySQL = new PlayerMySQL("Miquel");
 
         //Act
-        PlayerMySQL savedPlayerSQL = playerMySQLRepository.save(playerMySQL);
+        PlayerMySQL savedPlayerSQL = playerMySQLRepository.save(playerMySQL1);
 
         //Assert
         Assertions.assertThat(savedPlayerSQL).isNotNull();
@@ -54,8 +65,6 @@ public class RepositorySQLPlayerTest {
 
     @Test
     public void playerMySQLRepo_GetAll_ReturnListOfPlayer(){
-        PlayerMySQL playerMySQL1 = new PlayerMySQL("Miquel");
-        PlayerMySQL playerMySQL2 = new PlayerMySQL("Miquel2");
         playerMySQLRepository.save(playerMySQL1);
         playerMySQLRepository.save(playerMySQL2);
 
@@ -68,9 +77,8 @@ public class RepositorySQLPlayerTest {
 
     @Test
     public void playerMySQLRepo_FindById_ReturnOne(){
-        PlayerMySQL playerMySQL = new PlayerMySQL("Miquel");
-        playerMySQLRepository.save(playerMySQL);
-        int id = playerMySQL.getId();
+        playerMySQLRepository.save(playerMySQL1);
+        int id = playerMySQL1.getId();
 
         PlayerMySQL savedPlayer = playerMySQLRepository.findById(id).get();
 
@@ -80,9 +88,8 @@ public class RepositorySQLPlayerTest {
 
     @Test
     public void playerMySQLRepo_UpdatePlayer_ReturnUpdatedPlayer(){
-        PlayerMySQL playerMySQL = new PlayerMySQL("Miquel");
-        playerMySQLRepository.save(playerMySQL);
-        int id = playerMySQL.getId();
+        playerMySQLRepository.save(playerMySQL1);
+        int id = playerMySQL1.getId();
 
         PlayerMySQL savedPlayer = playerMySQLRepository.findById(id).get();
         String updatedName = "Manolo";
@@ -96,14 +103,13 @@ public class RepositorySQLPlayerTest {
 
     @Test
     public void playerMySQLRepo_DeleteById_ReturnIsEmpty(){
-        PlayerMySQL playerMySQL = new PlayerMySQL("Miquel");
-        playerMySQLRepository.save(playerMySQL);
+        playerMySQLRepository.save(playerMySQL1);
         List<PlayerMySQL> list = playerMySQLRepository.findAll();
 
-        playerMySQLRepository.deleteById(playerMySQL.getId());
+        playerMySQLRepository.deleteById(playerMySQL1.getId());
 
         List<PlayerMySQL> listEmpty = playerMySQLRepository.findAll();
-        Optional<PlayerMySQL> optional = playerMySQLRepository.findById(playerMySQL.getId());
+        Optional<PlayerMySQL> optional = playerMySQLRepository.findById(playerMySQL1.getId());
 
         Assertions.assertThat(list).isNotEmpty();
         Assertions.assertThat(listEmpty).isEmpty();
@@ -124,10 +130,9 @@ public class RepositorySQLPlayerTest {
 
     @Test
     public void playerMySQLRepo_ExistByID_ReturnBoolean(){
-        PlayerMySQL playerMySQL = new PlayerMySQL("Miquel");
-        playerMySQLRepository.save(playerMySQL);
+        playerMySQLRepository.save(playerMySQL1);
 
-        Boolean result = playerMySQLRepository.existsById(playerMySQL.getId());
+        Boolean result = playerMySQLRepository.existsById(playerMySQL1.getId());
 
         Assertions.assertThat(result).isTrue();
     }

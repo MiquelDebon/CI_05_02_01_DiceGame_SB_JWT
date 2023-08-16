@@ -29,43 +29,51 @@ public class AuthenticationMySQLService {
 
 
     public AuthenticationResponse register(RegisterRequest request){
-        try{
-            checkDuplicatedEmail(request.getEmail());
-            checkDuplicatedName(request.getFirstname());
+        checkDuplicatedEmail(request.getEmail());
+        checkDuplicatedName(request.getFirstname());
 
-            PlayerMySQL user;
-            if(!request.getEmail().contains("@admin.com")){
-                user = buildPlayer(request, Role.USER);
-                repository.save(user);
-            }else{
-                user = buildPlayer(request, Role.ADMIN);
-            }
+        PlayerMySQL user;
+        if(!request.getEmail().contains("@admin.com")){
+            user = buildPlayer(request, Role.USER);
             repository.save(user);
-
-            var jwtToken = jwtService.generateToken(user);
-            return AuthenticationResponse.builder()
-                    .token(jwtToken)
-                    .build();
-        }catch (DuplicateUserEmailException e){
-            throw new DuplicateUserEmailException("Error duplicated email");
-        }catch (DuplicateUserNameException e){
-            throw new DuplicateUserEmailException("Error duplicated name");
+        }else{
+            user = buildPlayer(request, Role.ADMIN);
         }
+        repository.save(user);
+
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
     }
 
 
     public AuthenticationResponse authenticate (LoginRequest request){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(), request.getPassword()
-                )
-        );
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                        request.getEmail(), request.getPassword()));
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .build();
+    }
+
+    /**
+     *
+     * Support methods
+     */
+
+    public PlayerMySQL buildPlayer(RegisterRequest request, Role role){
+        return PlayerMySQL.builder()
+                .name(request.getFirstname())
+                .surname(request.getLastname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(role)
+                .registerDate(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
+                        .format(new java.util.Date()))
                 .build();
     }
 
@@ -90,17 +98,7 @@ public class AuthenticationMySQLService {
         }
     }
 
-    public PlayerMySQL buildPlayer(RegisterRequest request, Role role){
-        return PlayerMySQL.builder()
-                .name(request.getFirstname())
-                .surname(request.getLastname())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(role)
-                .registerDate(new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss")
-                        .format(new java.util.Date()))
-                .build();
-    }
+
 
 
 

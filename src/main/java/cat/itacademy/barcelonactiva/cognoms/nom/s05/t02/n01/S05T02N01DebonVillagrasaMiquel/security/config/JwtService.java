@@ -5,6 +5,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +17,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "404d2a0e0abc0b8d1ad5da1859961552ce09c28aea324796d7a15caf054a385e";
+    @Value("${miquel.app.jwtSecret_KEY}")
+    private String SECRET_KEY;
+//    private static final String SECRET_KEY = "404d2a0e0abc0b8d1ad5da1859961552ce09c28aea324796d7a15caf054a385e";
 
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);

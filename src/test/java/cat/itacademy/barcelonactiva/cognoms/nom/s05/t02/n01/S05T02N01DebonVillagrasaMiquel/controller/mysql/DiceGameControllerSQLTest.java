@@ -26,9 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.*;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -67,9 +65,9 @@ public class DiceGameControllerSQLTest {
         playerGameDTO = PlayerGameDTO.builder().id(1).name("Miquel").averageMark(2).build();
         gameDTO = new GameDTO(3);
         listPlayerGameDTO = Arrays.asList(
-                new PlayerGameDTO(1, "Miquel", 0),
-                new PlayerGameDTO(2, "Marta", 5),
-                new PlayerGameDTO(3, "Julia", 10));
+                new PlayerGameDTO(1, "Miquel", 0,"0"),
+                new PlayerGameDTO(2, "Marta", 5, "5"),
+                new PlayerGameDTO(3, "Julia", 10, "10"));
         listGameDTO = Arrays.asList(
                 new GameDTO(1),
                 new GameDTO(2),
@@ -137,7 +135,7 @@ public class DiceGameControllerSQLTest {
 
     @Test
     public void diceController_deleteGameById_returnUpdatedPlayerGameDTO() throws Exception{
-        given(service.findPlayerDTOById(player.getId())).willReturn(Optional.of(playerGameDTO));
+        given(service.findPlayerDTOById(player.getId())).willReturn(playerGameDTO);
         mockMvc.perform(delete("/players/{id}/games",player.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(playerGameDTO)))
@@ -172,7 +170,7 @@ public class DiceGameControllerSQLTest {
 
     @Test
     public void diceController_getWorstPlayer_returnPlayer() throws Exception{
-        given(service.getWorstPlayer()).willReturn(Optional.of(playerGameDTO));
+        given(service.getWorstPlayer()).willReturn(playerGameDTO);
         mockMvc.perform(get("/players/ranking/loser")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(playerGameDTO)))
@@ -191,7 +189,7 @@ public class DiceGameControllerSQLTest {
 
     @Test
     public void diceController_getBestPlayer_returnPlayer() throws Exception{
-        given(service.getBestPlayer()).willReturn(Optional.of(playerGameDTO));
+        given(service.getBestPlayer()).willReturn(playerGameDTO);
         mockMvc.perform(get("/players/ranking/winner")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(playerGameDTO)))
@@ -211,13 +209,21 @@ public class DiceGameControllerSQLTest {
 
     @Test
     public void diceController_getAverageTotalMark_returnAverageMark() throws Exception{
-        given(service.averageTotalMarks()).willReturn(OptionalDouble.of(5));
+        given(service.averageTotalMarks()).willReturn(5d);
         mockMvc.perform(get("/players/totalAverageMark")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(Double.class)))
 
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(5));
+    }
+    @Test
+    public void diceController_getAverageTotalMark_returnEmptyException() throws Exception{
+        given(service.averageTotalMarks()).willThrow(EmptyDataBaseException.class);
+        mockMvc.perform(get("/players/totalAverageMark"))
+
+                .andExpect(status().isNoContent())
+                .andDo(print());
     }
 
 

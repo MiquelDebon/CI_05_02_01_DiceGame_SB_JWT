@@ -66,6 +66,7 @@ By ID or ROLE:
   - [PRUEBAS de INTEGRACIÓN en SPRING BOOT | Programando en Java](https://www.youtube.com/watch?v=fEv3AXFqLXg)
   - [Learn Unit Testing and Integration Testing | AmigosCode](https://www.youtube.com/watch?v=Geq60OVyBPg)
   - [@DataJpaTest example for Spring Data Repository Unit Test | Bezkoder](https://www.bezkoder.com/spring-boot-unit-test-jpa-repo-datajpatest/)
+  - [Joseluisgs Profesor](https://github.com/joseluisgs/springboot-profesores-madrid-2022-2023/blob/main/07-Testing/README.md)
   
 - JWT - SpringBoot Security
   - [Bezkoder - Spring Boot Token based Authentication with Spring Security & JWT](https://www.bezkoder.com/spring-boot-jwt-authentication/)

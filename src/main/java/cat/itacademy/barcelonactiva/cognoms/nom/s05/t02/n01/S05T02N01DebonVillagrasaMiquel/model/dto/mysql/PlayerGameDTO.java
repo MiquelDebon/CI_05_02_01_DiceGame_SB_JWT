@@ -19,6 +19,9 @@ public class PlayerGameDTO {
     @Schema(defaultValue = "Name", description = "Player Name")
     private String name;
 
-    @Schema(defaultValue = "0", description = "Average mark/success")
+    @Schema(defaultValue = "0", description = "Average mark")
     private double averageMark;
+
+    @Schema(defaultValue = "0", description = "Success rate")
+    private String successRate;
 }

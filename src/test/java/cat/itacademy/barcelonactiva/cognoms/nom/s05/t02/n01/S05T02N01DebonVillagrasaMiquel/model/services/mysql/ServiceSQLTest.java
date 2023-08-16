@@ -43,18 +43,15 @@ public class ServiceSQLTest {
 
 
     private PlayerMySQL player1;
-    private PlayerMySQL player2;
     private GameMySQL game1;
     private GameMySQL game2;
     private List<GameMySQL> games ;
     private List<PlayerMySQL> listPlayerMySQL;
-    private List<GameMySQL> listGameDTO;
     private RegisterRequest registerRequest;
 
     @BeforeEach
     public void setUp(){
         player1 = new PlayerMySQL(1, "Miquel");
-        player2 = new PlayerMySQL(2, "Manolo");
 
         game1 = new GameMySQL(1, player1);
         game2 = new GameMySQL(2, player1);
@@ -65,10 +62,6 @@ public class ServiceSQLTest {
                 new PlayerMySQL(2, "Marta"),
                 new PlayerMySQL(3, "Jorge"));
 
-        listGameDTO = Arrays.asList(
-                new GameMySQL(1, 3, player1),
-                new GameMySQL(2, 5, player1));
-
         registerRequest = new RegisterRequest("Miquel", "Debon",
                 "mdebonbcn@gmail.com", "password");
     }
@@ -76,12 +69,12 @@ public class ServiceSQLTest {
 
     @Test
     public void playerSQLService_findByID_ReturnPlayerDTO(){
-        Mockito.when(playerRepositorySQL.existsById(1)).thenReturn(true);
         Mockito.when(playerRepositorySQL.findById(1)).thenReturn(Optional.of(player1));
-        Optional<PlayerGameDTO> playerReturned = underTestService.findPlayerDTOById(1);
+
+        PlayerGameDTO playerReturned = underTestService.findPlayerDTOById(1);
 
         Assertions.assertThat(player1).isNotNull();
-        Assertions.assertThat(player1.getId()).isEqualTo(playerReturned.get().getId());
+        Assertions.assertThat(player1.getId()).isEqualTo(playerReturned.getId());
     }
 
     @Test
@@ -96,17 +89,12 @@ public class ServiceSQLTest {
 
     @Test
     public void playerSQLService_getAllPlayerDTO_ReturnListPlayersDTO(){
-        Mockito.when(playerRepositorySQL.existsById(1)).thenReturn(true);
-        Mockito.when(playerRepositorySQL.existsById(2)).thenReturn(true);
-        Mockito.when(gameRepositorySQL.findByPlayerId(1)).thenReturn(games);
-        Mockito.when(gameRepositorySQL.findByPlayerId(2)).thenReturn(new ArrayList<GameMySQL>());
+        Mockito.when(playerRepositorySQL.findAll()).thenReturn(listPlayerMySQL);
 
-        Mockito.when(playerRepositorySQL.findAll()).thenReturn(
-                        Stream.of(player1, player2).collect(Collectors.toList()));
         List<PlayerGameDTO> actualList = underTestService.getAllPlayersDTO();
 
-        Assertions.assertThat(underTestService.getAllPlayersDTO()).isNotEmpty();
-        Assertions.assertThat(actualList.size()).isEqualTo(2);
+        Assertions.assertThat(actualList).isNotEmpty();
+        Assertions.assertThat(actualList.size()).isEqualTo(3);
     }
 
 
@@ -162,27 +150,17 @@ public class ServiceSQLTest {
 
     @Test
     public void playerSQLService_getAllPlayerDTORanking_ReturnListPlayersDTO(){
-        PlayerMySQL player1 = new PlayerMySQL(1, "Miquel");
-        PlayerMySQL player2 = new PlayerMySQL(2, "Marta");
-        GameMySQL gameMySQL1 = new GameMySQL(1, player1);
-        GameMySQL gameMySQL2 = new GameMySQL(2, player1);
-        List<GameMySQL> games = Arrays.asList(gameMySQL1, gameMySQL2);
+        Mockito.when(playerRepositorySQL.findAll()).thenReturn(listPlayerMySQL);
 
-        Mockito.when(playerRepositorySQL.existsById(1)).thenReturn(true);
-        Mockito.when(playerRepositorySQL.existsById(2)).thenReturn(true);
-        Mockito.when(gameRepositorySQL.findByPlayerId(1)).thenReturn(games);
-        Mockito.when(gameRepositorySQL.findByPlayerId(2)).thenReturn(new ArrayList<GameMySQL>());
-
-        Mockito.when(playerRepositorySQL.findAll()).thenReturn(
-                Stream.of(player1, player2).collect(Collectors.toList()));
         List<PlayerGameDTO> actualList = underTestService.getAllPlayersDTORanking();
 
-        Assertions.assertThat(underTestService.getAllPlayersDTO()).isNotEmpty();
-        Assertions.assertThat(actualList.size()).isEqualTo(2);
+        Assertions.assertThat(actualList).isNotEmpty();
+        Assertions.assertThat(actualList.size()).isEqualTo(3);
     }
     @Test
     public void playerSQLService_getAllPlayerDTORanking_ReturnException(){
         Mockito.when(playerRepositorySQL.findAll()).thenReturn(new ArrayList<PlayerMySQL>());
+
         assertThrows(EmptyDataBaseException.class, () -> {
             underTestService.getAllPlayersDTORanking();
         });
@@ -191,20 +169,19 @@ public class ServiceSQLTest {
 
     @Test
     public void gameSQLService_deleteGameByPlayerId_ReturnListGameDTO(){
-        Mockito.when(playerRepositorySQL.existsById(1)).thenReturn(true);
+        Mockito.when(playerRepositorySQL.findById(1)).thenReturn(Optional.of(player1));
         Mockito.when(gameRepositorySQL.deleteByPlayerId(1)).thenReturn(games);
 
         // Delete games
-        underTestService.deleteGamesByPlayerId(1);
         List<GameDTO> deletedGames = underTestService.deleteGamesByPlayerId(1);
 
         // Verify
         Assertions.assertThat(deletedGames.size()).isEqualTo(2);
-        Mockito.verify(gameRepositorySQL, Mockito.times(2)).deleteByPlayerId(1);
+        Mockito.verify(gameRepositorySQL, Mockito.times(1)).deleteByPlayerId(1);
     }
     @Test
     public void gameSQLService_deleteGamesByPlayerId_returnException(){
-        Mockito.when(playerRepositorySQL.existsById(anyInt())).thenReturn(false);
+        Mockito.when(playerRepositorySQL.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class,
                 ()-> underTestService.deleteGamesByPlayerId(anyInt()));
@@ -213,62 +190,53 @@ public class ServiceSQLTest {
 
     @Test
     public void playerSQLService_GetWorstPlayer_ReturnPlayerGameDTO(){
-        PlayerMySQL player1 = new PlayerMySQL(1, "Miquel");
-        PlayerMySQL player2 = new PlayerMySQL(2, "Marta");
-        GameMySQL gameMySQL1 = new GameMySQL(1, player1);
-        GameMySQL gameMySQL2 = new GameMySQL(10, player2);
+        Mockito.when(playerRepositorySQL.findAll()).thenReturn(listPlayerMySQL);
 
-        Mockito.when(playerRepositorySQL.findAll()).thenReturn(
-                Stream.of(player1, player2).collect(Collectors.toList()));
-        Mockito.when(gameRepositorySQL.findByPlayerId(1)).thenReturn(
-                Stream.of(gameMySQL1).collect(Collectors.toList()));
-        Mockito.when(gameRepositorySQL.findByPlayerId(2)).thenReturn(
-                Stream.of(gameMySQL2).collect(Collectors.toList()));
+        PlayerGameDTO player = underTestService.getWorstPlayer();
 
-        Optional<PlayerGameDTO> player = underTestService.getWorstPlayer();
-        Assertions.assertThat(player).isNotEmpty();
-        Assertions.assertThat(player.get().getId()).isEqualTo(1);
-        Assertions.assertThat(player.get().getClass()).isEqualTo(PlayerGameDTO.class);
+        Assertions.assertThat(player).isNotNull();
+        Assertions.assertThat(player.getId()).isEqualTo(3);
+        Assertions.assertThat(player.getClass()).isEqualTo(PlayerGameDTO.class);
     }
 
     @Test
     public void playerSQLService_GetBestPlayer_ReturnPlayerGameDTO(){
-        PlayerMySQL player1 = new PlayerMySQL(1, "Miquel");
-        PlayerMySQL player2 = new PlayerMySQL(2, "Marta");
-        GameMySQL gameMySQL1 = new GameMySQL(1, player1);
-        GameMySQL gameMySQL2 = new GameMySQL(10, player2);
+        Mockito.when(playerRepositorySQL.findAll()).thenReturn(listPlayerMySQL);
 
-        Mockito.when(playerRepositorySQL.findAll()).thenReturn(
-                Stream.of(player1, player2).collect(Collectors.toList()));
-        Mockito.when(gameRepositorySQL.findByPlayerId(1)).thenReturn(
-                Stream.of(gameMySQL1).collect(Collectors.toList()));
-        Mockito.when(gameRepositorySQL.findByPlayerId(2)).thenReturn(
-                Stream.of(gameMySQL2).collect(Collectors.toList()));
+        PlayerGameDTO player = underTestService.getBestPlayer();
 
-        Optional<PlayerGameDTO> player = underTestService.getBestPlayer();
-        Assertions.assertThat(player).isNotEmpty();
-        Assertions.assertThat(player.get().getId()).isEqualTo(2);
+        Assertions.assertThat(player).isNotNull();
+        Assertions.assertThat(player.getId()).isEqualTo(1);
+        Assertions.assertThat(player.getClass()).isEqualTo(PlayerGameDTO.class);
     }
 
     @Test
-    public void playerSQL_getAverageTotalMarks_returnOptionalDouble(){
+    public void playerSQL_getAverageTotalMarks_returnDouble(){
         Mockito.when(playerRepositorySQL.findAll()).thenReturn(listPlayerMySQL);
-        Mockito.when(playerRepositorySQL.existsById(anyInt())).thenReturn(true);
-        Mockito.when(gameRepositorySQL.findByPlayerId(anyInt())).thenReturn(listGameDTO);
 
-        OptionalDouble optionalDouble = underTestService.averageTotalMarks();
+        Double doubleValue = underTestService.averageTotalMarks();
 
-        Assertions.assertThat(optionalDouble).isNotEmpty();
+        Assertions.assertThat(doubleValue).isNotNull();
+    }
+
+    @Test
+    public void playerSQL_getAverageTotalMarks_returnEmptyDBException(){
+        Mockito.when(playerRepositorySQL.findAll())
+                .thenThrow(EmptyDataBaseException.class);
+
+        assertThrows(EmptyDataBaseException.class,
+                ()->underTestService.averageTotalMarks());
     }
 
 
     @Test
     public void playerSQLService_updatePlayer_ReturnUpdatedPlayer(){
         Mockito.when(playerRepositorySQL.findByEmail(anyString())).thenReturn(Optional.of(player1));
-        Mockito.when(playerRepositorySQL.existsById(1)).thenReturn(true);
         Mockito.when(passwordEncoder.encode(anyString())).thenReturn(anyString());
 
-        underTestService.updatePlayer(registerRequest, "email");
+        PlayerGameDTO updatedPlayer = underTestService.updatePlayer(registerRequest, "email");
+
+        Assertions.assertThat(updatedPlayer.getName()).isEqualTo("Miquel");
     }
 
 

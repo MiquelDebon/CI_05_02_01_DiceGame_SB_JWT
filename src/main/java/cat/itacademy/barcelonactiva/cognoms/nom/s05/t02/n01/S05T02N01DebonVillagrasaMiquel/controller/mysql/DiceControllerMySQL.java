@@ -254,7 +254,7 @@ public class DiceControllerMySQL {
     public ResponseEntity<?> deletePlayerGames(@PathVariable int id){
         try{
             PGService.deleteGamesByPlayerId(id);
-            PlayerGameDTO player = PGService.findPlayerDTOById(id).get();
+            PlayerGameDTO player = PGService.findPlayerDTOById(id);
             return new ResponseEntity<>(player, HttpStatus.OK);
         }catch (UserNotFoundException e){
             throw e;
@@ -351,11 +351,11 @@ public class DiceControllerMySQL {
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<?> getWorstPlayer(){
         try{
-            Optional<PlayerGameDTO> player = PGService.getWorstPlayer();
+            PlayerGameDTO player = PGService.getWorstPlayer();
             return new ResponseEntity<>(player, HttpStatus.OK);
         }catch (EmptyDataBaseException e){
             throw e;
-        }catch (RuntimeException e){
+        }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -394,11 +394,11 @@ public class DiceControllerMySQL {
     @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<?> getBestPlayer(){
         try{
-            Optional<PlayerGameDTO> player =  PGService.getBestPlayer();
+            PlayerGameDTO player =  PGService.getBestPlayer();
             return new ResponseEntity<>(player, HttpStatus.OK);
         }catch (EmptyDataBaseException e){
             throw e;
-        }catch (RuntimeException e){
+        }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -430,11 +430,13 @@ public class DiceControllerMySQL {
     @GetMapping("/totalAverageMark")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAverageTotalMark(){
-        OptionalDouble averageMark = PGService.averageTotalMarks();
-        if(averageMark.isPresent()){
-            Double result = Math.round(averageMark.getAsDouble() * 100.00) / 100.00;
+        Double averageMark = PGService.averageTotalMarks();
+        try{
+            Double result = Math.round(averageMark * 100.00) / 100.00;
             return new ResponseEntity<>(result, HttpStatus.OK);
-        }else{
+        }catch (EmptyDataBaseException e){
+            throw e;
+        }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

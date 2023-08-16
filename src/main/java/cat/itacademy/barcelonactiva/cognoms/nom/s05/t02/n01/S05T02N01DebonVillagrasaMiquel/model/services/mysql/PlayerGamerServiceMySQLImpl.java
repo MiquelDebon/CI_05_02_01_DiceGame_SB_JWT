@@ -42,10 +42,7 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
      */
 
     public PlayerGameDTO playerDTOfromPlayer(PlayerMySQL player){
-        return new PlayerGameDTO(player.getId(), player.getName(), this.averageMarkPLayer(player.getId()));
-    }
-    public PlayerGameDTO rankingPlayerDTOfromPlayer(PlayerMySQL player){
-        return new PlayerGameDTO(player.getId(), player.getName(), this.successRate(player.getId()));
+        return new PlayerGameDTO(player.getId(), player.getName(), player.getAverageMark(), (player.getSuccessRate() + " %"));
     }
     public GameDTO gameDTOfromGame(GameMySQL game){
         return new GameDTO(game.getMark());
@@ -79,8 +76,8 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
         List<PlayerMySQL> playerMySQLList = playerRepositorySQL.findAll();
         if(playerMySQLList.size() > 0){
             return playerMySQLList.stream()
-                    .map(p -> rankingPlayerDTOfromPlayer(p))
-                    .sorted(Comparator.comparing(PlayerGameDTO::getAverageMark).reversed())
+                    .sorted(Comparator.comparing(PlayerMySQL::getSuccessRate).reversed())
+                    .map(p -> this.playerDTOfromPlayer(p))
                     .collect(Collectors.toList());
         }else{
             log.error(BaseDescriptionException.EMPTY_DATABASE);
@@ -110,10 +107,10 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     }
 
     @Override
-    public Optional<PlayerGameDTO> findPlayerDTOById(int id){
+    public PlayerGameDTO findPlayerDTOById(int id){
         Optional<PlayerMySQL> player = playerRepositorySQL.findById(id);
         if(player.isPresent()){
-            return Optional.of(this.playerDTOfromPlayer(player.get()));
+            return this.playerDTOfromPlayer(player.get());
         }else{
             log.error(BaseDescriptionException.NO_USER_BY_THIS_ID);
             throw new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID);
@@ -139,12 +136,15 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
                 orElseThrow(() -> new UserNotFoundException(BaseDescriptionException.NO_USER_BY_THIS_ID));
 
         GameMySQL savedGame = gameRepository.save(new GameMySQL(result, player));
+        playerRepositorySQL.save(player.autoSetNewGamesRates(result));
         return gameDTOfromGame(savedGame);
     }
 
     @Override
     public List<GameDTO> deleteGamesByPlayerId(int id){
-        if(playerRepositorySQL.existsById(id)){
+        Optional<PlayerMySQL> player = playerRepositorySQL.findById(id);
+        if(player.isPresent()){
+            player.get().resetAllGamesRate();
             return gameRepository.deleteByPlayerId(id).stream()
                     .map(this::gameDTOfromGame)
                     .collect(Collectors.toList());
@@ -155,55 +155,25 @@ public class PlayerGamerServiceMySQLImpl implements IPlayerGamerServiceMySQL {
     }
 
     @Override
-    public Optional<PlayerGameDTO> getWorstPlayer(){
+    public PlayerGameDTO getWorstPlayer(){
         List<PlayerGameDTO> playersList = this.getAllPlayersDTORanking();
-        return Optional.of(playersList.stream()
-                .min(Comparator.comparing(PlayerGameDTO::getAverageMark))
-                .orElseThrow(NoSuchElementException::new));
+        return playersList.get(playersList.size()-1);
     }
 
     @Override
-    public Optional<PlayerGameDTO> getBestPlayer(){
+    public PlayerGameDTO getBestPlayer(){
         List<PlayerGameDTO> playersList = this.getAllPlayersDTORanking();
-        return Optional.of(playersList.stream()
-                .max(Comparator.comparing(PlayerGameDTO::getAverageMark))
-                .orElseThrow(NoSuchElementException::new));
+        return playersList.get(0);
     }
 
+
     @Override
-    public OptionalDouble averageTotalMarks(){
+    public Double averageTotalMarks(){
         return this.getAllPlayersDTO().stream()
                 .mapToDouble(PlayerGameDTO::getAverageMark)
-                .average();
+                .average().getAsDouble();
     }
 
-
-    /**
-     *
-     * support methods
-     *
-     */
-    public double successRate(int id){
-        int rounds = gameRepository.findByPlayerId(id).size();
-        if(rounds == 0) return 0;
-        else {
-            int wonRounds = (int) gameRepository.findByPlayerId(id).stream()
-                    .map(GameMySQL::getMark)
-                    .filter(m -> m >= 7)
-                    .count();
-            return (double) Math.round(((double) wonRounds / rounds) * 10000) /100;
-        }
-    }
-
-
-    public Double averageMarkPLayer(int idPlayer){
-        List<GameDTO> games = findGamesByPlayerId(idPlayer);
-        return  Math.round((games.stream()
-                .mapToDouble(GameDTO::getMark)
-                .average()
-                .orElse(Double.NaN)) * 100.00) / 100.00;
-
-    }
 
 
 }

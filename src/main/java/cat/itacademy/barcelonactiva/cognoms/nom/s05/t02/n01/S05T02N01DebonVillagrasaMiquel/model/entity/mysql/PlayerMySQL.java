@@ -43,6 +43,12 @@ public class PlayerMySQL implements UserDetails {
     private String email;
     private String password;
 
+    private int amountOfGames = 0;
+    private int wonGames = 0;
+    private double averageMark = 0;
+    private double successRate = 0;
+    private int sumMark = 0;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -93,4 +99,37 @@ public class PlayerMySQL implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
+    public void addAmountGames(){
+        amountOfGames++;
+    }
+    public void addWonGames(){
+        wonGames++;
+    }
+
+    public PlayerMySQL autoSetNewGamesRates(int newGameMark){
+        this.addAmountGames();
+        this.setSumMark(this.sumMark + newGameMark);
+        if(newGameMark > 7) this.addWonGames();
+
+        double newSuccessRate = (double) Math.round(((double) this.wonGames / this.amountOfGames) * 10000) /100;
+        this.setSuccessRate(newSuccessRate);
+
+        double newAverageMark =
+                (double) Math.round(((double)(sumMark)/amountOfGames)
+                        *100.00)/100.00;
+        this.setAverageMark(newAverageMark);
+        return this;
+    }
+
+    public void resetAllGamesRate(){
+        this.setAmountOfGames(0);
+        this.setWonGames(0);
+        this.setAverageMark(0);
+        this.setSuccessRate(0);
+        this.setSumMark(0);
+    }
+
+
 }
